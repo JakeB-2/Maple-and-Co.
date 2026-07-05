@@ -1,26 +1,903 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/*
+  ---break---
+*/
+@custom-variant dark (&:is(.dark *));
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Device-neutral INPUT-ergonomics variant (R-UX-022). `touch:` applies on any
+   device that CAN be touched — `(any-pointer: coarse)`, not the primary-pointer
+   `pointer-coarse:` built-in, so hybrid touch-laptops aren't missed. Used to
+   floor tap targets (dense h-7/size-7 controls grow to ~36px) without changing
+   the layout grammar or re-tokenizing density. Pair with `(hover: none)` for
+   hover-affordance removal. */
+@custom-variant touch (@media (any-pointer: coarse));
+
+/*
+  Global design tokens — SKELETON.
+  The token NAMES below are the full set the copied ui components consume;
+  the VALUES are plain neutral shadcn defaults (zinc-ish placeholders).
+  The Maple & Co household palette lands in the M5 design pass — fill the
+  values in this block then; do not rename tokens.
+  Type scale lives in --fs-*; elevation in --elevation-* (depth over borders).
+*/
+/* `.theme-light` is paired with `:root` so any subtree can force the light
+   palette regardless of the global `.dark` class (available for any
+   always-light surface). */
+:root, .theme-light {
+  /* Light mode — plain neutral grey/off-white base (no hue tint).
+       card / background 1.000 (white)  →  surface-2 0.970  →  surface-3 0.940 */
+  --background:          oklch(1 0 0);
+  --card:                oklch(1 0 0);
+  --surface-2:           oklch(0.970 0 0);
+  --surface-3:           oklch(0.940 0 0);
+
+  --foreground:          oklch(0.205 0 0);
+  --card-foreground:     oklch(0.205 0 0);
+  --foreground-hi:       oklch(0.145 0 0);
+
+  --muted:               oklch(0.970 0 0);
+  /* Kept dark enough for placeholders + subtitle text to meet WCAG AA. */
+  --muted-foreground:    oklch(0.505 0 0);
+
+  --border:              oklch(0.922 0 0);
+  --border-strong:       oklch(0.800 0 0);
+  --input:               oklch(0.970 0 0);
+
+  /* Header bands blend with whatever surface they sit on (transparent) —
+     distinction is bold uppercase label + a bottom border, never a fill. */
+  --surface-header:      transparent;
+
+  --primary:             oklch(0.205 0 0);
+  --primary-foreground:  oklch(0.985 0 0);
+  --primary-soft:        oklch(0.205 0 0 / 0.08);
+  --primary-soft-2:      oklch(0.205 0 0 / 0.14);
+
+  /* Secondary accent — reserved for cross-record navigation and the info
+     family, so --primary stays unambiguously "primary action". Neutral grey
+     placeholder until the M5 palette pass; `-soft` tints are for chips/links. */
+  --accent-2:            oklch(0.440 0 0);
+  --accent-2-foreground: oklch(0.985 0 0);
+  --accent-2-soft:       oklch(0.440 0 0 / 0.10);
+  --accent-2-soft-2:     oklch(0.440 0 0 / 0.18);
+
+  --secondary:           oklch(0.970 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+
+  --accent:              oklch(0.970 0 0);
+  --accent-foreground:   oklch(0.205 0 0);
+
+  --destructive:         oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --popover:             oklch(1 0 0);
+  --popover-foreground:  oklch(0.205 0 0);
+
+  --ring:                oklch(0.708 0 0);
+
+  --radius:              0.5rem;
+  --drawer-header-h:     116px;
+  --drawer-sm:           480px;
+  --drawer-md:           720px;
+  --drawer-lg:           960px;
+  --shadow-card:         0 6px 18px -6px rgba(31,42,56,0.14), 0 2px 5px -2px rgba(31,42,56,0.08);
+  --shadow-card-sm:      0 1px 2px rgba(31,42,56,0.07);
+  --shadow-pop:          0 12px 34px -8px rgba(31,42,56,0.20);
+  --ease:                cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast:            120ms;
+  --dur:                 180ms;
+  --dur-slow:            240ms;
+
+  --sidebar:             oklch(0.985 0 0);
+  --sidebar-foreground:  oklch(0.205 0 0);
+  --sidebar-primary:     oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent:      oklch(0.205 0 0 / 0.08);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border:      oklch(0.922 0 0);
+  --sidebar-ring:        oklch(0.708 0 0);
+
+  /* Semantic colors — functional status hues (not brand palette); the M5
+     design pass may tune them. */
+  --color-success:       oklch(0.580 0.140 160);
+  --color-warning:       oklch(0.620 0.135 70);
+  --color-info:          oklch(0.560 0.150 245);
+  --color-danger:        oklch(0.575 0.190 27);
+
+  --color-success-bg:    color-mix(in srgb, var(--color-success) 13%, var(--card));
+  --color-warning-bg:    color-mix(in srgb, var(--color-warning) 15%, var(--card));
+  --color-info-bg:       color-mix(in srgb, var(--color-info) 13%, var(--card));
+  --color-danger-bg:     color-mix(in srgb, var(--color-danger) 12%, var(--card));
+
+  /* Chart — shadcn neutral-theme defaults; replaced in the M5 palette pass. */
+  --chart-1:             oklch(0.646 0.222 41.116);
+  --chart-2:             oklch(0.6 0.118 184.704);
+  --chart-3:             oklch(0.398 0.07 227.392);
+  --chart-4:             oklch(0.828 0.189 84.429);
+  --chart-5:             oklch(0.769 0.188 70.08);
+
+  /* ---------------------------------------------------------------------
+     Type scale — three heading roles + body/meta.
+       title   — page & full-route detail headers
+       record  — drawer / record-card headers
+       section — card / section headers (consistent 600 weight)
+       eyebrow — uppercase overline / column labels
+       body    — default control + cell text
+       dense   — compact controls / table-adjacent text (the de facto 13px)
+       meta    — muted secondary / counts
+       micro   — smallest annotations (row meta, chips, collapsed summaries)
+     Theme-independent, so they live once in the shared block. */
+  --fs-title:            1.375rem;   /* 22px */
+  --fs-record:           1.125rem;   /* 18px */
+  --fs-section:          0.9375rem;   /* 15px */
+  --fs-body:             0.875rem;   /* 14px */
+  --fs-dense:            0.8125rem;   /* 13px */
+  --fs-eyebrow:          0.75rem;   /* 12px */
+  --fs-meta:             0.75rem;   /* 12px */
+  --fs-micro:            0.6875rem;   /* 11px */
+  --tracking-title:      -0.01em;
+  --tracking-eyebrow:    0.06em;
+  --lh-tight:            1.15;
+  --fw-title:            600;
+  --fw-section:          600;
+
+  /* Elevation language — depth, not borders, carries separation.
+     Rule of thumb: a surface gets a border OR a tint, never both; children
+     inside a bordered card go borderless (dividers only).
+       flat   — no shadow (nested groups; rely on a background step)
+       raised — the standard lifted card (page / drawer / popover surface)
+       pop    — floating overlays (menus, popovers) */
+  --elevation-flat:      none;
+  --elevation-raised:    var(--shadow-card);
+  --elevation-pop:       var(--shadow-pop);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark mode — plain neutral placeholders (see skeleton note above). */
+.dark {
+  --background:          oklch(0.145 0 0);
+  --card:                oklch(0.205 0 0);
+  --surface-2:           oklch(0.269 0 0);
+  --surface-3:           oklch(0.320 0 0);
+
+  --foreground:          oklch(0.985 0 0);
+  --card-foreground:     oklch(0.960 0 0);
+  --foreground-hi:       oklch(1 0 0);
+
+  --muted:               oklch(0.269 0 0);
+  --muted-foreground:    oklch(0.708 0 0);
+
+  --border:              oklch(1 0 0 / 10%);
+  --border-strong:       oklch(1 0 0 / 24%);
+  --input:               oklch(1 0 0 / 15%);
+
+  --primary:             oklch(0.922 0 0);
+  --primary-foreground:  oklch(0.205 0 0);
+  --primary-soft:        oklch(0.922 0 0 / 0.10);
+  --primary-soft-2:      oklch(0.922 0 0 / 0.16);
+
+  /* Header bands blend with their surface (transparent) — see light note. */
+  --surface-header:      transparent;
+
+  /* Secondary accent — neutral grey placeholder, lifted for legibility on the
+     dark surface. */
+  --accent-2:            oklch(0.750 0 0);
+  --accent-2-foreground: oklch(0.145 0 0);
+  --accent-2-soft:       oklch(0.750 0 0 / 0.16);
+  --accent-2-soft-2:     oklch(0.750 0 0 / 0.24);
+
+  --secondary:           oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+
+  --accent:              oklch(0.269 0 0);
+  --accent-foreground:   oklch(0.985 0 0);
+
+  --destructive:         oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --popover:             oklch(0.269 0 0);
+  --popover-foreground:  oklch(0.960 0 0);
+
+  --ring:                oklch(0.556 0 0);
+
+  --sidebar:             oklch(0.205 0 0);
+  --sidebar-foreground:  oklch(0.960 0 0);
+  --sidebar-primary:     oklch(0.922 0 0);
+  --sidebar-primary-foreground: oklch(0.205 0 0);
+  --sidebar-accent:      oklch(0.922 0 0 / 0.10);
+  --sidebar-accent-foreground: oklch(0.922 0 0);
+  --sidebar-border:      oklch(1 0 0 / 10%);
+  --sidebar-ring:        oklch(0.556 0 0);
+
+  /* Semantic colors */
+  --color-success:       oklch(0.70 0.160 160);
+  --color-warning:       oklch(0.78 0.160 80);
+  --color-info:          oklch(0.68 0.160 230);
+  --color-danger:        oklch(0.65 0.200 25);
+
+  --color-success-bg:    rgba(52, 211, 153, 0.12);
+  --color-warning-bg:    rgba(251, 191, 36, 0.12);
+  --color-info-bg:       rgba(96, 165, 250, 0.12);
+  --color-danger-bg:     rgba(248, 113, 113, 0.12);
+
+  /* Chart — shadcn neutral-theme dark defaults; replaced in the M5 pass. */
+  --chart-1:             oklch(0.488 0.243 264.376);
+  --chart-2:             oklch(0.696 0.17 162.48);
+  --chart-3:             oklch(0.769 0.188 70.08);
+  --chart-4:             oklch(0.627 0.265 303.9);
+  --chart-5:             oklch(0.645 0.246 16.439);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/*
+  Appearance presets. Applied to <html> server-side from config for FOUC-free
+  first paint. The `default` preset is the base :root values, so it needs no
+  class.
+*/
+
+/* Radius scale (--radius-sm…4xl) derives from --radius via calc(), so overriding
+   the base is enough. */
+.radius-sharp { --radius: 0.25rem; }
+.radius-soft { --radius: 0.75rem; }
+
+/*
+  Text-scale presets. The root font-size is the one lever that reaches every
+  rem-based Tailwind utility (text-sm, h-9, px-3…) app-wide, so scaling happens
+  here rather than per-component. The app default is deliberately one step
+  above the browser's 16px — 100% reads too small on desktop and phone alike.
+  Per-user override applied as an <html> class (textscale-*).
+
+  Phones get one extra step per preset: small screens are held farther from the
+  eye and touch needs the extra target size. The media query is em-based on the
+  browser default (unaffected by this very rule), matching Tailwind's md
+  breakpoint (48rem = 768px).
+*/
+html { font-size: 106.25%; }               /* default: 17px */
+html.textscale-compact { font-size: 100%; }
+html.textscale-large { font-size: 112.5%; }
+html.textscale-xl { font-size: 125%; }
+@media (max-width: 47.9375em) {
+  html { font-size: 112.5%; }
+  html.textscale-compact { font-size: 106.25%; }
+  html.textscale-large { font-size: 118.75%; }
+  html.textscale-xl { font-size: 131.25%; }
+}
+
+/*
+  Surface palette presets. `default` is the base :root/.dark neutrals above
+  (no class). Non-default palettes are additive `.surface-<key>` overrides
+  applied to <html> alongside `.dark`. Only true neutral-surface tokens are
+  overridden here; brand-paired tokens (--primary-foreground,
+  --accent-2-foreground, --accent-foreground, --surface-header) are
+  intentionally left alone so the accent color keeps its own contrast pairing
+  regardless of palette.
+
+  graphite — cool neutral gray-blue (no warmth), AA-checked against the
+  (unchanged) --foreground / --muted-foreground text tokens in both modes.
+  `.surface-graphite` alone covers light mode (wins over `:root, .theme-light`
+  by source order at equal specificity); `.dark.surface-graphite` is a compound
+  selector so it out-specifies the plain `.dark` block for dark mode.
+*/
+.surface-graphite {
+  --background:           #f5f6f7;
+  --card:                 #ffffff;
+  --surface-2:            #eceef0;
+  --surface-3:            #e3e6e9;
+  --foreground:           #26292c;
+  --card-foreground:      #26292c;
+  --foreground-hi:        #17191b;
+  --muted:                #eceef0;
+  --muted-foreground:     #5b6167;
+  --border:               #d8dce0;
+  --border-strong:        #c3c8ce;
+  --input:                #eceef0;
+  --popover:              #ffffff;
+  --popover-foreground:   #26292c;
+  --secondary:            #eceef0;
+  --secondary-foreground: #26292c;
+  --accent:               #eceef0;
+}
+.dark.surface-graphite {
+  --background:           #17191c;
+  --card:                 #1e2124;
+  --surface-2:            #24282c;
+  --surface-3:            #2b3035;
+  --foreground:           #e7e9ea;
+  --card-foreground:      #dcdee0;
+  --foreground-hi:        #f2f3f4;
+  --muted:                #24282c;
+  --muted-foreground:     #9aa1a8;
+  --border:               #30353b;
+  --border-strong:        #454c54;
+  --input:                #2b3035;
+  --popover:              #24282c;
+  --popover-foreground:   #dcdee0;
+  --secondary:            #24282c;
+  --secondary-foreground: #dcdee0;
+  --accent:               #24282c;
+}
+
+/*
+  Base element styling
+*/
+* {
+  border-color: var(--border);
+}
+
+html,
+body {
+  overscroll-behavior: none;
+  overflow-x: hidden;
+  /* manipulation = pan + pinch-zoom allowed, double-tap zoom suppressed (keeps
+     buttons snappy). */
+  touch-action: manipulation;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.5;
+}
+
+/*
+  ---break---
+*/
+@theme inline {
+  --font-heading: var(--font-sans);
+  --font-sans: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-2: var(--primary-soft-2);
+  --color-accent-2: var(--accent-2);
+  --color-accent-2-foreground: var(--accent-2-foreground);
+  --color-accent-2-soft: var(--accent-2-soft);
+  --color-accent-2-soft-2: var(--accent-2-soft-2);
+  /* Type scale exposed as font-size utilities: text-title / text-record /
+     text-section / text-body / text-eyebrow / text-meta. Lets primitives drop
+     scattered text-[0.8125rem] / text-[0.6875rem] literals for named scale steps. */
+  --text-title:   var(--fs-title);
+  --text-record:  var(--fs-record);
+  --text-section: var(--fs-section);
+  --text-body:    var(--fs-body);
+  --text-dense:   var(--fs-dense);
+  --text-eyebrow: var(--fs-eyebrow);
+  --text-meta:    var(--fs-meta);
+  --text-micro:   var(--fs-micro);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-surface-header: var(--surface-header);
+  --color-success: var(--color-success);
+  --color-success-bg: var(--color-success-bg);
+  --color-warning: var(--color-warning);
+  --color-warning-bg: var(--color-warning-bg);
+  --color-info: var(--color-info);
+  --color-info-bg: var(--color-info-bg);
+  --color-danger: var(--color-danger);
+  --color-danger-bg: var(--color-danger-bg);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+  ---break---
+*/
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+
+  /* Semantic Badge variants. The colour tokens (--color-success etc.) are
+     defined at :root but not exposed via @theme inline, so Tailwind can't
+     synthesise a `bg-success` class. Applying them via the data-variant
+     attribute (which the Badge component already sets) sidesteps the
+     bracket-arbitrary-class pattern that breaks under Turbopack. */
+  /* Soft tinted badge fills — readable, low-noise status chips. */
+  [data-slot="badge"][data-variant="success"] {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+  }
+  [data-slot="badge"][data-variant="warning"] {
+    background: var(--color-warning-bg);
+    color: var(--color-warning);
+  }
+  [data-slot="badge"][data-variant="info"] {
+    background: var(--color-info-bg);
+    color: var(--color-info);
+  }
+  [data-slot="badge"][data-variant="default"],
+  [data-slot="badge"][data-variant="primary"] {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  [data-slot="badge"][data-variant="destructive"] {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+  }
+}
+
+/* Toasts */
+[data-sonner-toast].cn-toast {
+  cursor: pointer;
+}
+
+@media (max-width: 600px) {
+  [data-sonner-toaster].toaster[data-x-position="center"] {
+    left: 50% !important;
+    right: auto !important;
+    width: min(20rem, calc(100vw - 6rem)) !important;
+    transform: translateX(-50%) !important;
+  }
+
+  [data-sonner-toaster].toaster[data-x-position="center"] [data-sonner-toast] {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+  }
+
+  [data-sonner-toaster].toaster [data-sonner-toast][data-styled="true"].cn-toast {
+    min-height: 0;
+    gap: 5px;
+    padding: 10px 12px;
+    font-size: 0.75rem; /* 12px @16 */
+    line-height: 1.35;
+  }
+
+  [data-sonner-toaster].toaster [data-sonner-toast] [data-content] {
+    min-width: 0;
+  }
+
+  [data-sonner-toaster].toaster [data-sonner-toast] [data-title] {
+    line-height: 1.3;
+  }
+}
+
+/* Sidebar nav item tweaks. NB: the `.protec-*` class names are kept verbatim
+   because the copied NavSidebar component references them; rename in both
+   places or neither. */
+.protec-icon-rail {
+  z-index: 60;
+  transition: width var(--dur) var(--ease);
+}
+
+.protec-icon-rail [data-sidebar="sidebar"] {
+  overflow: hidden;
+  border-right: 1px solid var(--sidebar-border);
+  box-shadow: none;
+  transition: box-shadow var(--dur) var(--ease);
+}
+
+.protec-icon-rail [data-sidebar="content"] {
+  overflow-anchor: none;
+  overscroll-behavior: contain;
+}
+
+.protec-icon-rail:hover [data-sidebar="sidebar"],
+.protec-icon-rail-open [data-sidebar="sidebar"] {
+  box-shadow: var(--shadow-pop);
+}
+
+.protec-icon-rail [data-sidebar="header"] {
+  overflow: hidden;
+}
+
+/* Brand title fades with the rail on desktop (hidden when collapsed, revealed
+   on hover/expand) — the opacity rules live in the md breakpoint block below
+   alongside the other label-hide rules. On mobile the drawer is always
+   full-width, so the title stays visible without a hover or a menu click. */
+.protec-icon-rail [data-sidebar="header"] p {
+  transition: opacity var(--dur-fast) linear;
+}
+
+.protec-nav-group {
+  padding: 4px 0;
+}
+
+.protec-nav-item-pinned {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--sidebar);
+}
+
+.protec-nav-group-label {
+  height: 24px;
+  padding: 11px 22px 4px;
+  color: var(--muted-foreground);
+  font-size: 0.625rem; /* 10px @16 */
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.protec-nav-item {
+  display: flex;
+  height: 38px;
+  align-items: center;
+  gap: 13px;
+  margin: 1px 10px;
+  overflow: hidden;
+  border-radius: 9px;
+  padding: 0 9px;
+  color: var(--sidebar-foreground);
+  font-size: 0.84375rem; /* 13.5px @16 — rem so it tracks the text-scale presets */
+  font-weight: 500;
+  outline: none;
+  transition:
+    background-color var(--dur-fast) linear,
+    color var(--dur-fast) linear;
+}
+
+.protec-nav-item:hover,
+.protec-nav-subitem:hover {
+  background: var(--sidebar-accent);
+  color: var(--sidebar-primary);
+}
+
+/* Active item is distinct from hover: a solid accent left bar + soft fill +
+   weight bump, so the current page reads at a glance (and the bar still shows
+   on the collapsed icon rail). Mirrors the SectionStack section-pill language. */
+.protec-nav-item.is-active,
+.protec-nav-subitem.is-active {
+  position: relative;
+  background: var(--sidebar-accent);
+  color: var(--sidebar-primary);
+  font-weight: 600;
+}
+
+/* Bar on top-level items only; active subitems already read via fill + weight
+   and sit inside the sub-group's own left border, so a second bar reads noisy. */
+.protec-nav-item.is-active::before {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 7px;
+  bottom: 7px;
+  width: 3px;
+  border-radius: 9999px;
+  background: var(--sidebar-primary);
+}
+
+.protec-nav-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+/* High-emphasis department icon: slightly larger and uses the brand primary
+   tint instead of the muted default, so the row reads as a primary destination.
+   Only the icon changes; the label and sub-tabs are unchanged. Applied in the
+   collapsed icon-only rail so the emphasis is visible before the sidebar expands. */
+.protec-nav-icon-high {
+  width: 18px;
+  height: 18px;
+  color: var(--sidebar-primary);
+}
+
+.protec-nav-label {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Command-palette hint on the pinned Search row — small muted key cap so the
+   row reads as a launcher (⌘K / Ctrl K). Hidden when the rail collapses to
+   icons via the item's own `overflow: hidden`. */
+.protec-nav-kbd {
+  flex: none;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--muted-foreground);
+  font-family: inherit;
+  font-size: 0.65625rem; /* 10.5px @16 */
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+/* Row wrapper so a hub's L1 link and its expand chevron sit side by side. */
+.protec-nav-row {
+  display: flex;
+  align-items: center;
+}
+.protec-nav-row .protec-nav-item {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.protec-nav-expand {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 30px;
+  margin-right: 8px;
+  border-radius: 6px;
+  color: var(--sidebar-foreground);
+  opacity: 0.45;
+  transition:
+    opacity var(--dur-fast) linear,
+    background-color var(--dur-fast) linear;
+}
+.protec-nav-expand:hover {
+  opacity: 1;
+  background: var(--sidebar-accent);
+}
+
+.protec-nav-sub {
+  margin: 0 10px 2px 27px;
+  border-left: 1px solid var(--sidebar-border);
+  padding: 2px 0 2px 10px;
+}
+
+.protec-nav-subitem {
+  display: flex;
+  min-height: 28px;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 7px;
+  padding: 0 8px;
+  color: var(--sidebar-foreground);
+  font-size: 0.78125rem; /* 12.5px @16 */
+  outline: none;
+  transition:
+    background-color var(--dur-fast) linear,
+    color var(--dur-fast) linear;
+}
+
+.protec-nav-subitem span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .protec-nav-sub {
+    display: none;
+  }
+
+  .protec-nav-item-wrap.is-open .protec-nav-sub {
+    display: block;
+  }
+}
+
+@media (min-width: 768px) {
+  /* Rest state on the collapsed icon rail: labels, sub-tabs, and trailing
+     action buttons are hidden until the rail expands — via hover on pointer
+     devices, or the explicit touch tap-to-expand toggle. */
+  .protec-icon-rail .protec-nav-group-label,
+  .protec-icon-rail .protec-nav-label,
+  .protec-icon-rail [data-sidebar="header"] p {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-fast) linear;
+  }
+
+  .protec-icon-rail .protec-nav-sub {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-fast) linear;
+  }
+
+  .protec-icon-rail .protec-nav-expand {
+    display: none;
+  }
+
+  /* Expanded state — applied by the touch tap-to-expand toggle on ANY device
+     (R-UX-022). Overlays content: only the fixed container widens; the layout
+     gap stays at icon width, so the page doesn't shift. */
+  .protec-icon-rail-open[data-slot="sidebar-container"] {
+    width: var(--sidebar-width) !important;
+  }
+  .protec-icon-rail-open [data-sidebar="content"] {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+  .protec-icon-rail-open .protec-nav-expand {
+    display: flex;
+  }
+  .protec-icon-rail-open .protec-nav-group-label,
+  .protec-icon-rail-open .protec-nav-label,
+  .protec-icon-rail-open .protec-nav-sub,
+  .protec-icon-rail-open [data-sidebar="header"] p {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* Sub-tabs in the tap-expanded rail are per-hub, not all-at-once: tapping a
+     hub icon opens the rail AND expands just that hub's children (.is-open is
+     set by the same tap; see NavSidebar handleHubToggle). Tapping the brand
+     logo opens the rail with every hub collapsed (R-UX-022). */
+  .protec-icon-rail-open .protec-nav-sub {
+    display: none;
+  }
+  .protec-icon-rail-open .protec-nav-item-wrap.is-open .protec-nav-sub {
+    display: block;
+  }
+}
+
+/* Hover-driven expansion — POINTER devices only (R-UX-022). On touch (no
+   reliable hover) the rail expands via the explicit tap toggle instead, so a
+   finger never triggers a flaky transient-hover expand and the labels/sub-tabs/
+   More-actions button stay reachable. A hybrid laptop with a mouse keeps hover. */
+@media (min-width: 768px) and (hover: hover) {
+  .protec-icon-rail[data-slot="sidebar-container"]:hover {
+    width: var(--sidebar-width) !important;
+  }
+
+  .protec-icon-rail:hover [data-sidebar="content"] {
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  .protec-icon-rail:hover .protec-nav-expand {
+    display: flex;
+  }
+
+  .protec-icon-rail:hover .protec-nav-group-label,
+  .protec-icon-rail:hover .protec-nav-label,
+  .protec-icon-rail:hover [data-sidebar="header"] p {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .protec-icon-rail:hover .protec-nav-item-wrap.is-open .protec-nav-sub {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+[data-sidebar="menu-button"] {
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  font-size: 0.84375rem; /* 13.5px @16 — rem so it tracks the text-scale presets */
+}
+
+[data-sidebar="menu-button"][data-active="true"] {
+  background: var(--sidebar-accent);
+  color: var(--sidebar-primary) !important;
+}
+
+[data-sidebar="group-label"] {
+  font-size: 0.625rem; /* 10px @16 */
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  padding: 8px 10px 3px;
+}
+
+/* Side-rail card header tint */
+[data-slot="sp-card-head"],
+[data-slot="side-panel-card-head"] {
+  background: color-mix(in oklch, var(--primary) 6%, var(--card));
+  border-bottom: 1px solid color-mix(in oklch, var(--primary) 18%, var(--border));
+}
+
+[data-slot="sp-card-head"] h4,
+[data-slot="side-panel-card-head"] h4 {
+  font-size: 0.6875rem; /* 11px @16 */
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0;
+  color: color-mix(in oklch, var(--primary) 70%, var(--foreground));
+}
+
+/* Inset hairline dividers — sit back from the row's side edges (a padded look
+   that matches the accent pills) instead of running edge-to-edge.
+     .hairline-b / .hairline-t  — a single inset bottom / top rule
+     .hairline-b-rows           — inset bottom rule on each child except the last
+     .hairline-rows             — inset rule between direct children (≈ divide-y) */
+.hairline-b,
+.hairline-t,
+.hairline-b-rows,
+.hairline-rows > * + * {
+  position: relative;
+}
+.hairline-b::after,
+.hairline-t::after,
+.hairline-b-rows:not(:last-child)::after,
+.hairline-rows > * + *::before {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  height: 1px;
+  background: var(--border);
+  pointer-events: none;
+}
+.hairline-b::after,
+.hairline-b-rows:not(:last-child)::after { bottom: 0; }
+.hairline-t::after,
+.hairline-rows > * + *::before { top: 0; }
+
+/* Scrollbar */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* Invoice print styles
+ *
+ * Print isolates the [data-print-invoice] subtree from the rest of the page
+ * so "Export as PDF" never includes the sidebar, the bill list in split
+ * views, the page header chrome, or the Payments tab. We hide everything
+ * with visibility:hidden (keeps layout sane), re-show the invoice subtree,
+ * and lift it to the top of the page so the now-blank ancestors don't push
+ * it down. */
+@media print {
+  body {
+    background: white !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  [data-print-invoice],
+  [data-print-invoice] * {
+    visibility: visible;
+  }
+
+  [data-print-invoice] {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    max-width: none;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
+  }
+
+  [data-print-invoice] tr {
+    page-break-inside: avoid;
+  }
+
+  [data-print-invoice] tfoot {
+    page-break-before: avoid;
+  }
 }
