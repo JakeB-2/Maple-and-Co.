@@ -38,20 +38,21 @@ export function useSoftDeleteWithUndo() {
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const { refreshNow } = useMutationRefresh()
 
-  async function runDelete({ table, id, label, noun = 'Item' }: RunDeleteArgs) {
+  /** Resolves true only if the delete committed — gate any follow-up navigation on it. */
+  async function runDelete({ table, id, label, noun = 'Item' }: RunDeleteArgs): Promise<boolean> {
     setDeletingId(id)
     const result = await softDelete(table, id)
     setDeletingId(null)
 
     if (result.error) {
       toast.error(result.error)
-      return
+      return false
     }
     if (result.warnings && result.warnings.length > 0) {
       // Soft warnings shouldn't appear in list-row contexts (these are never
       // high-stakes settings rows), but guard defensively.
       toast.error(result.warnings[0].message)
-      return
+      return false
     }
 
     // Refresh now so the row disappears from the list immediately. Restore
@@ -74,6 +75,7 @@ export function useSoftDeleteWithUndo() {
         },
       },
     })
+    return true
   }
 
   return { runDelete, deletingId }

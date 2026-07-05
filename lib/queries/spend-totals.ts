@@ -3,7 +3,7 @@
 // Money math on integer centavos to dodge float drift.
 
 import type { SpendRow } from '@/lib/queries/spends'
-import type { Currency } from '@/lib/config'
+import { CURRENCY_SYMBOLS, type Currency } from '@/lib/config'
 
 export type CategoryTotal = {
   categoryId: string | null
@@ -21,11 +21,21 @@ export type CurrencyTotals = {
 
 const UNCATEGORIZED = { name: 'Uncategorized', emoji: '❓', color: '#8b8b8b' }
 
+/** Decimal DB amount → integer cents. The one place the rounding rule lives. */
+export function spendCents(spend: Pick<SpendRow, 'amount'>): number {
+  return Math.round(spend.amount * 100)
+}
+
+/** The one-liner every list row wants: a spend's amount, formatted. */
+export function formatSpendAmount(spend: Pick<SpendRow, 'amount' | 'currency'>): string {
+  return formatCents(spendCents(spend), spend.currency)
+}
+
 export function monthTotals(spends: SpendRow[]): CurrencyTotals[] {
   const byCurrency = new Map<Currency, Map<string | null, CategoryTotal>>()
 
   for (const spend of spends) {
-    const cents = Math.round(spend.amount * 100)
+    const cents = spendCents(spend)
     let categories = byCurrency.get(spend.currency)
     if (!categories) {
       categories = new Map()
@@ -63,10 +73,13 @@ export function monthTotals(spends: SpendRow[]): CurrencyTotals[] {
     .sort((a, b) => a.currency.localeCompare(b.currency))
 }
 
+// Household convention (D-008, CURRENCY_SYMBOLS): pesos are the plain '$',
+// dollars carry the disambiguating 'US$'. Intl's en-US symbols are the exact
+// inverse, so format the number and prepend our own symbol.
 export function formatCents(cents: number, currency: Currency): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    currencyDisplay: currency === 'USD' ? 'narrowSymbol' : 'symbol',
+  const amount = new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(cents / 100)
+  return `${CURRENCY_SYMBOLS[currency]}${amount}`
 }

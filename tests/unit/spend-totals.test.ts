@@ -67,8 +67,12 @@ describe('monthTotals', () => {
 
 describe('formatCents', () => {
   it('formats MXN with plain $ and USD distinguishably', () => {
-    expect(formatCents(150_00, 'MXN')).toContain('150')
-    expect(formatCents(20_00, 'USD')).toContain('20')
+    // Household convention (CURRENCY_SYMBOLS): pesos are the plain '$',
+    // dollars carry the disambiguating 'US$' — the inverse of Intl's en-US
+    // symbols, which is why the exact strings are pinned here.
+    expect(formatCents(150_00, 'MXN')).toBe('$150.00')
+    expect(formatCents(20_00, 'USD')).toBe('US$20.00')
+    expect(formatCents(123456, 'MXN')).toBe('$1,234.56')
     // The two must not render identically for the same digits (D-008: side by
     // side, never confusable).
     expect(formatCents(100_00, 'MXN')).not.toBe(formatCents(100_00, 'USD'))
