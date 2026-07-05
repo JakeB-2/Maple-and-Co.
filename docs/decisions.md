@@ -109,3 +109,32 @@ Two trigger functions (created/updated fill) copied from Portal's baseline but w
 ## D-020 · Reactions are hard-delete
 `reactions` is a created-only toggle (UNIQUE per user+emoji+entity). Removing a reaction deletes
 the row — a reaction is not content worth tombstoning.
+
+## D-021 · Check-off is a Postgres function, and uncheck retracts its price rows
+D-014's "one action writes both atomically" is literal: supabase-js has no transactions, so
+`fn_check_off_grocery_entry` / `fn_uncheck_grocery_entry` do the entry-stamp + price-history pair
+in one transaction (SECURITY INVOKER — RLS still applies; NULL return = lost the two-phone race).
+Uncheck DELETEs the entry's `source='checkoff'` observations: a retracted check-off was a mis-tap,
+not a price fact, so removing it keeps append-only history truthful.
+
+## D-022 · The need list is a set; adds are idempotent toggles
+One live un-purchased entry per item, enforced by a partial unique index (the Bring!-style
+tile/Command toggle UI assumes it). Add actions reuse the existing active entry, and a 23505 from
+a two-phone race reuses the winner's row. There is no ?new=1 form on /groceries — capture is the
+add box + tiles (≤2 taps).
+
+## D-023 · Deleting a catalog item hides its entries; undo restores both
+Item tombstone ≠ cascade: entries are never touched, but every list read filters out entries whose
+embedded item is tombstoned. Restore the item and its entries reappear — undo stays symmetric
+without bespoke cascade/restore machinery.
+
+## D-024 · One whitelist-gated reorder action, not per-entity move clones
+`moveSortable(table, id, direction)` (same shape as the soft-delete whitelist) does the
+neighbor-swap for spend_categories, stores, and store_sections (scoped per store via
+`scopeColumn`). M1's `moveSpendCategory` was folded into it.
+
+## D-025 · Grocery social hangs on the item, not the entry
+Comments/reactions on /groceries use `entity_type='grocery_item'` with the ITEM's id — entries are
+churn (added, purchased, re-added weekly) and taking the conversation with them would orphan it.
+ReactionsRow/CommentsSection were extracted from the spend drawer into shared
+`components/screens/entity-social.tsx` (no-clones).

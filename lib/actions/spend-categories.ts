@@ -58,34 +58,3 @@ export async function softDeleteSpendCategory(id: string): Promise<ActionResult<
   revalidateTable('spend_categories')
   return ok({ id })
 }
-
-// Swap sort_order with the neighbor above/below — up/down buttons, no dnd lib.
-export async function moveSpendCategory(id: string, direction: 'up' | 'down'): Promise<ActionResult> {
-  const { user, supabase } = await requireAuth()
-
-  const { data: categories, error } = await supabase
-    .from('spend_categories')
-    .select('id, sort_order')
-    .is('deleted_at', null)
-    .order('sort_order')
-
-  if (error) return fail(sanitizeActionError(error))
-
-  const index = categories.findIndex((c) => c.id === id)
-  if (index === -1) return fail('Category not found.')
-  const swapWith = direction === 'up' ? index - 1 : index + 1
-  if (swapWith < 0 || swapWith >= categories.length) return ok(undefined)
-
-  const a = categories[index]
-  const b = categories[swapWith]
-  const audit = getUpdateAuditFields(user.id)
-
-  const [ra, rb] = await Promise.all([
-    supabase.from('spend_categories').update({ sort_order: b.sort_order, ...audit }).eq('id', a.id),
-    supabase.from('spend_categories').update({ sort_order: a.sort_order, ...audit }).eq('id', b.id),
-  ])
-
-  if (ra.error || rb.error) return fail(sanitizeActionError(ra.error ?? rb.error))
-  revalidateTable('spend_categories')
-  return ok(undefined)
-}

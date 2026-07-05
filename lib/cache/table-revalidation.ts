@@ -14,16 +14,17 @@ const TABLE_ROUTES: Record<string, string[]> = {
   reactions: ['/', '/spending', '/groceries'],
   spends: ['/', '/spending'],
   spend_categories: ['/spending', '/settings/categories'],
-  stores: ['/groceries', '/settings/stores'],
-  store_sections: ['/groceries', '/settings/stores'],
-  grocery_items: ['/', '/groceries'],
-  grocery_list_entries: ['/', '/groceries'],
-  grocery_item_placements: ['/groceries'],
-  grocery_item_prices: ['/groceries'],
+  stores: ['/groceries', '/settings/stores', '/groceries/shop/[storeId]'],
+  store_sections: ['/groceries', '/settings/stores', '/groceries/shop/[storeId]'],
+  grocery_items: ['/', '/groceries', '/groceries/shop/[storeId]'],
+  grocery_list_entries: ['/', '/groceries', '/groceries/shop/[storeId]'],
+  grocery_item_placements: ['/groceries', '/groceries/shop/[storeId]'],
+  grocery_item_prices: ['/groceries', '/groceries/shop/[storeId]'],
 }
 
 export function revalidateTable(table: keyof typeof TABLE_ROUTES | (string & {})) {
   for (const route of TABLE_ROUTES[table] ?? []) {
-    revalidatePath(route)
+    // revalidatePath requires the 'page' type for paths with dynamic segments.
+    revalidatePath(route, route.includes('[') ? 'page' : undefined)
   }
 }

@@ -613,7 +613,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      fn_check_off_grocery_entry: {
+        Args: {
+          p_entry_id: string
+          p_price: number
+          p_store_id: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      fn_uncheck_grocery_entry: {
+        Args: { p_entry_id: string; p_user_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

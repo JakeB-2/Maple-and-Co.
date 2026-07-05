@@ -22,8 +22,19 @@ export default async function SettingsPage() {
         ]}
       />
 
+      <LinkedRowList
+        title="Groceries"
+        rows={[
+          {
+            name: 'Stores & sections',
+            meta: 'Where you shop, aisle by aisle',
+            href: '/settings/stores',
+          },
+        ]}
+      />
+
       <p className="px-1 text-sm text-muted-foreground">
-        Stores, Maple&apos;s event types, and profile colors arrive with their features. 🐾
+        Maple&apos;s event types and profile colors arrive with their features. 🐾
       </p>
     </div>
   )

@@ -33,6 +33,11 @@ type CommonProps<
   createLabel?: string
   /** After save, go to the ?selected= drawer (default) or the bare list. */
   redirectMode?: 'selected' | 'list'
+  /**
+   * The ?selected= row to return to when it differs from the edited record's
+   * id (editing a secondary entity from another row's drawer).
+   */
+  selectedId?: string
   /** The form fields (a <*FormFields /> element). */
   children: React.ReactNode
 }
@@ -60,7 +65,16 @@ export function ResourceCrudForm<
   T extends FieldValues & Record<string, unknown>,
   TInput extends FieldValues = FieldValues,
 >(props: ResourceCrudFormProps<T, TInput>) {
-  const { schema, listHref, label, transform, createLabel, redirectMode = 'selected', children } = props
+  const {
+    schema,
+    listHref,
+    label,
+    transform,
+    createLabel,
+    redirectMode = 'selected',
+    selectedId,
+    children,
+  } = props
   const toSelected = redirectMode !== 'list'
 
   if (props.mode === 'new') {
@@ -82,7 +96,7 @@ export function ResourceCrudForm<
     )
   }
 
-  const selectedHref = `${listHref}?selected=${props.id}`
+  const selectedHref = `${listHref}?selected=${selectedId ?? props.id}`
   const backHref = toSelected ? selectedHref : listHref
   return (
     <CrudForm<T, TInput>

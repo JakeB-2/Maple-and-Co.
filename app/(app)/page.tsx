@@ -5,6 +5,7 @@ import { requireAuth } from '@/lib/auth/dal'
 import { HOUSEHOLD_TZ } from '@/lib/config'
 import { fetchRecentPartnerSpends } from '@/lib/queries/spends'
 import { fetchProfiles } from '@/lib/queries/profiles'
+import { fetchRecentPartnerGroceryAdds } from '@/lib/queries/grocery-list'
 import { formatSpendAmount } from '@/lib/queries/spend-totals'
 import { Card, CardContent } from '@/components/ui/card'
 import { Surface } from '@/components/screens/surface'
@@ -32,9 +33,10 @@ function householdNow() {
 // adds (M2), Maple chips (M3), occurrences + fading tasks (M4).
 export default async function TodayPage() {
   const { user, supabase } = await requireAuth()
-  const [members, partnerSpends] = await Promise.all([
+  const [members, partnerSpends, partnerGroceryAdds] = await Promise.all([
     fetchProfiles(supabase),
     fetchRecentPartnerSpends(supabase, user.id),
+    fetchRecentPartnerGroceryAdds(supabase, user.id, 5),
   ])
 
   const { dateLabel, greeting } = householdNow()
@@ -105,10 +107,39 @@ export default async function TodayPage() {
         </section>
       )}
 
+      {partnerGroceryAdds.length > 0 && (
+        <section className="flex flex-col gap-1.5">
+          <h2 className="px-1 text-eyebrow text-muted-foreground">Added to the list</h2>
+          <Surface className="overflow-hidden">
+            <ul className="hairline-rows">
+              {partnerGroceryAdds.map((entry) => (
+                <li key={entry.id}>
+                  <Link
+                    href={`/groceries?selected=${entry.id}`}
+                    className="flex min-h-14 touch:min-h-16 items-center gap-3 px-3 py-2 transition-colors hover:bg-surface-2"
+                  >
+                    <span className="text-lg" aria-hidden>
+                      {entry.item.emoji}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-sm">
+                      <span className="font-medium">{entry.item.name}</span>
+                      {entry.qty ? <span className="text-muted-foreground"> · {entry.qty}</span> : ''}
+                    </span>
+                    <span className="whitespace-nowrap text-xs text-muted-foreground">
+                      {formatDistanceToNowStrict(new Date(entry.created_at), { addSuffix: true })}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Surface>
+        </section>
+      )}
+
       <Card>
         <CardContent className="py-8 text-center text-sm text-muted-foreground">
-          The digest fills in as features land — spends, groceries, Maple&apos;s day, and
-          what&apos;s due. For now: the house is quiet. 🐕
+          The digest fills in as features land — Maple&apos;s day and what&apos;s due. For
+          now: the house is quiet. 🐕
         </CardContent>
       </Card>
     </div>

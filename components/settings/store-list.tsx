@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { toast } from 'sonner'
-import { ArrowDown, ArrowUp, Pencil, Plus, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react'
 import { moveSortable } from '@/lib/actions/reorder'
 import { useMutationRefresh } from '@/lib/hooks/use-mutation-refresh'
 import { useSoftDeleteWithUndo } from '@/lib/hooks/use-soft-delete-with-undo'
@@ -12,9 +12,9 @@ import { useDrawerNavHref } from '@/lib/hooks/use-drawer-nav'
 import { Surface } from '@/components/screens/surface'
 import { Button } from '@/components/ui/button'
 
-export type CategoryListRow = { id: string; name: string; emoji: string; color: string }
+export type StoreListRow = { id: string; name: string; emoji: string; currency: string }
 
-export function CategoryList({ categories }: { categories: CategoryListRow[] }) {
+export function StoreList({ stores }: { stores: StoreListRow[] }) {
   const layer = useDrawerNavHref()
   const { newHref } = useUrlRowSelection(null)
   const { refreshNow } = useMutationRefresh()
@@ -24,7 +24,7 @@ export function CategoryList({ categories }: { categories: CategoryListRow[] }) 
   async function move(id: string, direction: 'up' | 'down') {
     setMovingId(id)
     try {
-      const result = await moveSortable('spend_categories', id, direction)
+      const result = await moveSortable('stores', id, direction)
       if (result.error) toast.error(result.error)
       else refreshNow()
     } finally {
@@ -36,39 +36,41 @@ export function CategoryList({ categories }: { categories: CategoryListRow[] }) 
     <div className="flex flex-col gap-3">
       <Surface className="overflow-hidden">
         <ul className="hairline-rows">
-          {categories.map((category, index) => {
-            const busy = movingId === category.id || deletingId === category.id
+          {stores.map((store, index) => {
+            const busy = movingId === store.id || deletingId === store.id
             return (
-              <li key={category.id} className="flex min-h-14 touch:min-h-16 items-center gap-3 px-3 py-1.5">
-                <span aria-hidden className="text-base">
-                  {category.emoji}
-                </span>
-                <span
-                  aria-hidden
-                  className="size-3 shrink-0 rounded-full"
-                  style={{ backgroundColor: category.color }}
-                />
-                <span className="min-w-0 flex-1 truncate text-sm">{category.name}</span>
+              <li key={store.id} className="flex min-h-14 touch:min-h-16 items-center gap-3 px-3 py-1.5">
+                <Link
+                  href={`/settings/stores/${store.id}`}
+                  className="flex min-w-0 flex-1 items-center gap-3"
+                >
+                  <span aria-hidden className="text-base">
+                    {store.emoji}
+                  </span>
+                  <span className="min-w-0 truncate text-sm">{store.name}</span>
+                  <span className="text-xs text-muted-foreground">{store.currency}</span>
+                  <ChevronRight aria-hidden className="size-4 shrink-0 text-muted-foreground" />
+                </Link>
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label={`Move ${category.name} up`}
+                  aria-label={`Move ${store.name} up`}
                   disabled={busy || index === 0}
-                  onClick={() => move(category.id, 'up')}
+                  onClick={() => move(store.id, 'up')}
                 >
                   <ArrowUp />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label={`Move ${category.name} down`}
-                  disabled={busy || index === categories.length - 1}
-                  onClick={() => move(category.id, 'down')}
+                  aria-label={`Move ${store.name} down`}
+                  disabled={busy || index === stores.length - 1}
+                  onClick={() => move(store.id, 'down')}
                 >
                   <ArrowDown />
                 </Button>
-                <Button asChild variant="ghost" size="icon" aria-label={`Edit ${category.name}`}>
-                  <Link href={layer(`/settings/categories?edit=${category.id}`)}>
+                <Button asChild variant="ghost" size="icon" aria-label={`Edit ${store.name}`}>
+                  <Link href={layer(`/settings/stores?edit=${store.id}`)}>
                     <Pencil />
                   </Link>
                 </Button>
@@ -76,14 +78,14 @@ export function CategoryList({ categories }: { categories: CategoryListRow[] }) 
                   variant="ghost"
                   size="icon"
                   className="text-muted-foreground"
-                  aria-label={`Delete ${category.name}`}
+                  aria-label={`Delete ${store.name}`}
                   disabled={busy}
                   onClick={() =>
                     runDelete({
-                      table: 'spend_categories',
-                      id: category.id,
-                      noun: 'Category',
-                      label: category.name,
+                      table: 'stores',
+                      id: store.id,
+                      noun: 'Store',
+                      label: store.name,
                     })
                   }
                 >
@@ -92,9 +94,9 @@ export function CategoryList({ categories }: { categories: CategoryListRow[] }) 
               </li>
             )
           })}
-          {categories.length === 0 && (
+          {stores.length === 0 && (
             <li className="px-6 py-10 text-center text-sm text-muted-foreground">
-              No categories yet — add the first one.
+              No stores yet — add the first one.
             </li>
           )}
         </ul>
@@ -102,7 +104,7 @@ export function CategoryList({ categories }: { categories: CategoryListRow[] }) 
 
       <Button asChild variant="outline" className="self-start">
         <Link href={newHref()}>
-          <Plus /> New category
+          <Plus /> New store
         </Link>
       </Button>
     </div>

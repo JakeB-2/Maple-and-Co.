@@ -12,9 +12,9 @@ import { useDrawerNavHref } from '@/lib/hooks/use-drawer-nav'
 import { Surface } from '@/components/screens/surface'
 import { Button } from '@/components/ui/button'
 
-export type CategoryListRow = { id: string; name: string; emoji: string; color: string }
+export type SectionListRow = { id: string; name: string }
 
-export function CategoryList({ categories }: { categories: CategoryListRow[] }) {
+export function SectionList({ storeId, sections }: { storeId: string; sections: SectionListRow[] }) {
   const layer = useDrawerNavHref()
   const { newHref } = useUrlRowSelection(null)
   const { refreshNow } = useMutationRefresh()
@@ -24,7 +24,7 @@ export function CategoryList({ categories }: { categories: CategoryListRow[] }) 
   async function move(id: string, direction: 'up' | 'down') {
     setMovingId(id)
     try {
-      const result = await moveSortable('spend_categories', id, direction)
+      const result = await moveSortable('store_sections', id, direction)
       if (result.error) toast.error(result.error)
       else refreshNow()
     } finally {
@@ -36,39 +36,31 @@ export function CategoryList({ categories }: { categories: CategoryListRow[] }) 
     <div className="flex flex-col gap-3">
       <Surface className="overflow-hidden">
         <ul className="hairline-rows">
-          {categories.map((category, index) => {
-            const busy = movingId === category.id || deletingId === category.id
+          {sections.map((section, index) => {
+            const busy = movingId === section.id || deletingId === section.id
             return (
-              <li key={category.id} className="flex min-h-14 touch:min-h-16 items-center gap-3 px-3 py-1.5">
-                <span aria-hidden className="text-base">
-                  {category.emoji}
-                </span>
-                <span
-                  aria-hidden
-                  className="size-3 shrink-0 rounded-full"
-                  style={{ backgroundColor: category.color }}
-                />
-                <span className="min-w-0 flex-1 truncate text-sm">{category.name}</span>
+              <li key={section.id} className="flex min-h-14 touch:min-h-16 items-center gap-3 px-3 py-1.5">
+                <span className="min-w-0 flex-1 truncate text-sm">{section.name}</span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label={`Move ${category.name} up`}
+                  aria-label={`Move ${section.name} up`}
                   disabled={busy || index === 0}
-                  onClick={() => move(category.id, 'up')}
+                  onClick={() => move(section.id, 'up')}
                 >
                   <ArrowUp />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
-                  aria-label={`Move ${category.name} down`}
-                  disabled={busy || index === categories.length - 1}
-                  onClick={() => move(category.id, 'down')}
+                  aria-label={`Move ${section.name} down`}
+                  disabled={busy || index === sections.length - 1}
+                  onClick={() => move(section.id, 'down')}
                 >
                   <ArrowDown />
                 </Button>
-                <Button asChild variant="ghost" size="icon" aria-label={`Edit ${category.name}`}>
-                  <Link href={layer(`/settings/categories?edit=${category.id}`)}>
+                <Button asChild variant="ghost" size="icon" aria-label={`Edit ${section.name}`}>
+                  <Link href={layer(`/settings/stores/${storeId}?edit=${section.id}`)}>
                     <Pencil />
                   </Link>
                 </Button>
@@ -76,14 +68,14 @@ export function CategoryList({ categories }: { categories: CategoryListRow[] }) 
                   variant="ghost"
                   size="icon"
                   className="text-muted-foreground"
-                  aria-label={`Delete ${category.name}`}
+                  aria-label={`Delete ${section.name}`}
                   disabled={busy}
                   onClick={() =>
                     runDelete({
-                      table: 'spend_categories',
-                      id: category.id,
-                      noun: 'Category',
-                      label: category.name,
+                      table: 'store_sections',
+                      id: section.id,
+                      noun: 'Section',
+                      label: section.name,
                     })
                   }
                 >
@@ -92,9 +84,9 @@ export function CategoryList({ categories }: { categories: CategoryListRow[] }) 
               </li>
             )
           })}
-          {categories.length === 0 && (
+          {sections.length === 0 && (
             <li className="px-6 py-10 text-center text-sm text-muted-foreground">
-              No categories yet — add the first one.
+              No sections yet — add the first one.
             </li>
           )}
         </ul>
@@ -102,7 +94,7 @@ export function CategoryList({ categories }: { categories: CategoryListRow[] }) 
 
       <Button asChild variant="outline" className="self-start">
         <Link href={newHref()}>
-          <Plus /> New category
+          <Plus /> New section
         </Link>
       </Button>
     </div>

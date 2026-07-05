@@ -22,8 +22,12 @@ export type CurrencyTotals = {
 const UNCATEGORIZED = { name: 'Uncategorized', emoji: '❓', color: '#8b8b8b' }
 
 /** Decimal DB amount → integer cents. The one place the rounding rule lives. */
+export function toCents(amount: number): number {
+  return Math.round(amount * 100)
+}
+
 export function spendCents(spend: Pick<SpendRow, 'amount'>): number {
-  return Math.round(spend.amount * 100)
+  return toCents(spend.amount)
 }
 
 /** The one-liner every list row wants: a spend's amount, formatted. */
