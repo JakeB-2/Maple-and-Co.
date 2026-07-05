@@ -72,3 +72,50 @@ WHERE NOT EXISTS (
       AND lower(sec.name) = lower(v.name)
       AND sec.deleted_at IS NULL
 );
+
+-- ----------------------------------------------------------------------------
+-- M3: Maple herself + the six anchored event types and their attributes.
+-- Types are keyed on system_key (renames in the app win over the seed);
+-- attributes are keyed on (type, system_key) or (type, lower(label)).
+-- ----------------------------------------------------------------------------
+INSERT INTO public.pets (name)
+SELECT 'Maple'
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.pets p WHERE lower(p.name) = 'maple' AND p.deleted_at IS NULL
+);
+
+INSERT INTO public.pet_event_types (name, emoji, system_key, config, sort_order)
+SELECT v.name, v.emoji, v.system_key, v.config::jsonb, v.sort_order
+FROM (VALUES
+    ('Feed',   '🍖', 'feed',   '{"recency": {"expect_every_hours": 12, "warn_after_hours": 16}, "show_on_today": true}',  10),
+    ('Walk',   '🦮', 'walk',   '{"recency": {"expect_every_hours": 8,  "warn_after_hours": 14}, "show_on_today": true}',  20),
+    ('Potty',  '💩', 'potty',  '{"recency": {"expect_every_hours": 8,  "warn_after_hours": 12}, "show_on_today": true}',  30),
+    ('Meds',   '💊', 'meds',   '{"show_on_today": false}', 40),
+    ('Weight', '⚖️', 'weight', '{"show_on_today": false}', 50),
+    ('Vet',    '🩺', 'vet',    '{"show_on_today": false}', 60)
+) AS v(name, emoji, system_key, config, sort_order)
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.pet_event_types t WHERE t.system_key = v.system_key
+);
+
+INSERT INTO public.pet_event_attributes
+    (event_type_id, label, system_key, value_kind, unit, required, sort_order, config)
+SELECT t.id, v.label, v.attr_key, v.value_kind, v.unit, v.required, v.sort_order, v.config::jsonb
+FROM (VALUES
+    ('feed',   'Meal',      NULL,        'single_choice', NULL, false, 10,
+     '{"options": [{"id": "breakfast", "label": "Breakfast", "emoji": "🌅"}, {"id": "dinner", "label": "Dinner", "emoji": "🌆"}, {"id": "snack", "label": "Snack", "emoji": "🦴"}]}'),
+    ('walk',   'Length',    NULL,        'single_choice', NULL, false, 10,
+     '{"options": [{"id": "short", "label": "Short", "emoji": "🐾"}, {"id": "normal", "label": "Normal", "emoji": "🚶"}, {"id": "long", "label": "Long", "emoji": "🥾"}]}'),
+    ('potty',  'What',      NULL,        'single_choice', NULL, false, 10,
+     '{"options": [{"id": "pee", "label": "Pee", "emoji": "💛"}, {"id": "poop", "label": "Poop", "emoji": "💩"}, {"id": "both", "label": "Both", "emoji": "✨"}]}'),
+    ('meds',   'Which med', NULL,        'text',          NULL, false, 10, '{}'),
+    ('weight', 'Weight',    'weight_kg', 'number',        'kg', true,  10, '{}'),
+    ('vet',    'Notes',     NULL,        'long_text',     NULL, false, 10, '{}')
+) AS v(type_key, label, attr_key, value_kind, unit, required, sort_order, config)
+JOIN public.pet_event_types t ON t.system_key = v.type_key
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.pet_event_attributes a
+    WHERE a.event_type_id = t.id
+      AND a.deleted_at IS NULL
+      AND (a.system_key = v.attr_key OR lower(a.label) = lower(v.label))
+);

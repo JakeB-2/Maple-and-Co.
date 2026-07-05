@@ -33,8 +33,19 @@ export default async function SettingsPage() {
         ]}
       />
 
+      <LinkedRowList
+        title="Maple"
+        rows={[
+          {
+            name: 'Event types',
+            meta: 'What you log about Maple',
+            href: '/settings/pet-events',
+          },
+        ]}
+      />
+
       <p className="px-1 text-sm text-muted-foreground">
-        Maple&apos;s event types and profile colors arrive with their features. 🐾
+        Profile colors arrive with their features. 🐾
       </p>
     </div>
   )

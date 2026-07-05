@@ -138,3 +138,27 @@ Comments/reactions on /groceries use `entity_type='grocery_item'` with the ITEM'
 churn (added, purchased, re-added weekly) and taking the conversation with them would orphan it.
 ReactionsRow/CommentsSection were extracted from the spend drawer into shared
 `components/screens/entity-social.tsx` (no-clones).
+
+## D-026 · Meds countdown is deferred to M4 (M3 shows last-done only)
+The master plan listed a "meds countdown" on the Maple profile in M3, but M3 renders only
+"💊 Last meds {ago}". The countdown's cadence is owned by M4's task linkage (D-017: "Flea meds
+every 4 wks after done, logs Meds") — completing the task auto-logs a Meds event and the next-dose
+projection is `last Meds occurrence + task after_done interval`. Seeding a `config.recency` cadence
+on the Meds type now would create a second, conflicting source of truth once M4 lands, so the
+countdown display is built in M4 off the linked task's projection. Meds intentionally has no
+recency block in the seed for the same reason.
+
+## D-027 · EAV choice options are retired, not deleted; the picker filters them
+Option ids derive from the label slug and logged `choice_ids` point at them, so an id is never
+dropped (D-013). Editing an attribute marks options omitted from the settings textarea as
+`archived: true` in `config.options` (kept for history); the log-form pickers use
+`selectableAttributeOptions` (archived filtered out) while history/detail keep resolving the full
+list via `attributeOptions`. Re-typing a removed label un-archives it. A label rename still mints a
+new id (old retired) — true rename-in-place needs a structured per-row editor, deferred.
+
+## D-028 · Pet-event edit clears only the rendered attributes' values
+`fn_update_pet_event` deletes only `pet_event_values` whose `attribute_id` is in the form's
+rendered set (`p_attribute_ids`), not all of them, so editing an old event's note no longer
+hard-deletes values whose attribute was soft-deleted since logging. Preserves D-013's "event
+survives its schema — orphan values are expected" and undo symmetry during an attribute-delete
+window (D-012).

@@ -18,7 +18,10 @@ const SOFT_DELETABLE = [
   'store_sections',
   'grocery_items',
   'grocery_list_entries',
-  // grows per milestone: pet_events (M3), calendar/tasks (M4)
+  'pet_events',
+  'pet_event_types',
+  'pet_event_attributes',
+  // grows per milestone: calendar/tasks (M4)
 ] as const
 
 type SoftDeletableTable = (typeof SOFT_DELETABLE)[number]

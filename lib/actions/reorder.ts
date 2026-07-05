@@ -12,6 +12,8 @@ const SORTABLE: Record<string, { scopeColumn?: string }> = {
   spend_categories: {},
   stores: {},
   store_sections: { scopeColumn: 'store_id' }, // ordering is per-store
+  pet_event_types: {},
+  pet_event_attributes: { scopeColumn: 'event_type_id' }, // ordering is per-type
 }
 
 // Swap sort_order with the neighbor above/below — up/down buttons, no dnd lib.

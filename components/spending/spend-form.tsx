@@ -1,18 +1,15 @@
 'use client'
 
-import { useRef, useState } from 'react'
 import { z } from 'zod'
-import { toast } from 'sonner'
-import { ImagePlus, Loader2, X } from 'lucide-react'
 import { CURRENCIES } from '@/lib/config'
 import { formatLocalDate } from '@/lib/format-date'
-import { createSpend, updateSpend, uploadSpendPhoto } from '@/lib/actions/spends'
+import { createSpend, updateSpend } from '@/lib/actions/spends'
 import { ResourceCrudForm } from '@/components/screens/resource-crud-form'
-import { FieldWrapper, FormSection, useFormContext } from '@/components/screens/form-shell'
+import { FormSection } from '@/components/screens/form-shell'
 import { NumberField, TextareaField } from '@/components/screens/form-fields-text'
 import { SelectField } from '@/components/screens/form-fields-select'
 import { DateField } from '@/components/screens/form-fields-date'
-import { Button } from '@/components/ui/button'
+import { PhotoField } from '@/components/screens/form-fields-photo'
 
 // Client form-values shape: strings for nullables (RHF-friendly), Date | string
 // for spent_on (DateField emits Date; edit defaults arrive as 'YYYY-MM-DD').
@@ -42,74 +39,6 @@ function toSpendInput(values: SpendFormValues): Record<string, unknown> {
     note: values.note.trim() || null,
     photo_path: values.photo_path || null,
   }
-}
-
-function SpendPhotoField() {
-  const { register, setValue, watch } = useFormContext()
-  const photoPath = watch('photo_path') as string
-  const [uploading, setUploading] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  async function onPick(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    event.target.value = '' // allow re-picking the same file after a failure
-    if (!file) return
-    setUploading(true)
-    try {
-      const formData = new FormData()
-      formData.append('photo', file)
-      const result = await uploadSpendPhoto(formData)
-      if (result.error !== null) toast.error(result.error)
-      else setValue('photo_path', result.data.path, { shouldDirty: true })
-    } finally {
-      setUploading(false)
-    }
-  }
-
-  return (
-    <FieldWrapper label="Photo" span="full">
-      <input type="hidden" {...register('photo_path')} />
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="sr-only"
-        aria-hidden
-        tabIndex={-1}
-        onChange={onPick}
-      />
-      {photoPath ? (
-        <div className="relative w-fit">
-          {/* eslint-disable-next-line @next/next/no-img-element -- authed same-origin proxy; next/image can't fetch it */}
-          <img
-            src={`/media/${photoPath}`}
-            alt="Attached spend photo"
-            className="max-h-40 rounded-lg border object-cover"
-          />
-          <Button
-            type="button"
-            variant="secondary"
-            size="icon"
-            className="absolute -right-2 -top-2 size-7 touch:size-9 rounded-full shadow"
-            aria-label="Remove photo"
-            onClick={() => setValue('photo_path', '', { shouldDirty: true })}
-          >
-            <X />
-          </Button>
-        </div>
-      ) : (
-        <Button
-          type="button"
-          variant="outline"
-          disabled={uploading}
-          onClick={() => inputRef.current?.click()}
-        >
-          {uploading ? <Loader2 className="animate-spin" /> : <ImagePlus />}
-          {uploading ? 'Uploading…' : 'Add photo'}
-        </Button>
-      )}
-    </FieldWrapper>
-  )
 }
 
 type SpendFormProps = {
@@ -147,7 +76,7 @@ export function SpendForm(props: SpendFormProps) {
       />
       <DateField name="spent_on" label="Date" required />
       <TextareaField name="note" label="Note" span="full" placeholder="What was it?" />
-      <SpendPhotoField />
+      <PhotoField name="photo_path" folder="spends" alt="Attached spend photo" />
     </FormSection>
   )
 

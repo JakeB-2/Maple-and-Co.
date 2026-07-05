@@ -351,6 +351,279 @@ export type Database = {
           },
         ]
       }
+      pet_event_attributes: {
+        Row: {
+          config: Json
+          created_at: string
+          created_by_user_id: string | null
+          deleted_at: string | null
+          deleted_by_user_id: string | null
+          event_type_id: string
+          id: string
+          label: string
+          required: boolean
+          sort_order: number
+          system_key: string | null
+          unit: string | null
+          updated_at: string
+          updated_by_user_id: string | null
+          value_kind: string
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          event_type_id: string
+          id?: string
+          label: string
+          required?: boolean
+          sort_order?: number
+          system_key?: string | null
+          unit?: string | null
+          updated_at?: string
+          updated_by_user_id?: string | null
+          value_kind: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          event_type_id?: string
+          id?: string
+          label?: string
+          required?: boolean
+          sort_order?: number
+          system_key?: string | null
+          unit?: string | null
+          updated_at?: string
+          updated_by_user_id?: string | null
+          value_kind?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_event_attributes_event_type_id_fkey"
+            columns: ["event_type_id"]
+            isOneToOne: false
+            referencedRelation: "pet_event_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pet_event_types: {
+        Row: {
+          config: Json
+          created_at: string
+          created_by_user_id: string | null
+          deleted_at: string | null
+          deleted_by_user_id: string | null
+          emoji: string
+          id: string
+          name: string
+          sort_order: number
+          system_key: string | null
+          updated_at: string
+          updated_by_user_id: string | null
+        }
+        Insert: {
+          config?: Json
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          emoji?: string
+          id?: string
+          name: string
+          sort_order?: number
+          system_key?: string | null
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          emoji?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          system_key?: string | null
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Relationships: []
+      }
+      pet_event_values: {
+        Row: {
+          attribute_id: string
+          choice_ids: Json | null
+          created_at: string
+          created_by_user_id: string | null
+          event_id: string
+          file_path: string | null
+          id: string
+          updated_at: string
+          updated_by_user_id: string | null
+          value_boolean: boolean | null
+          value_number: number | null
+          value_text: string | null
+        }
+        Insert: {
+          attribute_id: string
+          choice_ids?: Json | null
+          created_at?: string
+          created_by_user_id?: string | null
+          event_id: string
+          file_path?: string | null
+          id?: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+          value_boolean?: boolean | null
+          value_number?: number | null
+          value_text?: string | null
+        }
+        Update: {
+          attribute_id?: string
+          choice_ids?: Json | null
+          created_at?: string
+          created_by_user_id?: string | null
+          event_id?: string
+          file_path?: string | null
+          id?: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+          value_boolean?: boolean | null
+          value_number?: number | null
+          value_text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_event_values_attribute_id_fkey"
+            columns: ["attribute_id"]
+            isOneToOne: false
+            referencedRelation: "pet_event_attributes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pet_event_values_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "pet_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pet_events: {
+        Row: {
+          created_at: string
+          created_by_user_id: string | null
+          deleted_at: string | null
+          deleted_by_user_id: string | null
+          done_by_user_id: string
+          event_type_id: string
+          id: string
+          note: string | null
+          occurred_at: string
+          pet_id: string
+          updated_at: string
+          updated_by_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          done_by_user_id: string
+          event_type_id: string
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          pet_id: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          done_by_user_id?: string
+          event_type_id?: string
+          id?: string
+          note?: string | null
+          occurred_at?: string
+          pet_id?: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pet_events_done_by_user_id_fkey"
+            columns: ["done_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pet_events_event_type_id_fkey"
+            columns: ["event_type_id"]
+            isOneToOne: false
+            referencedRelation: "pet_event_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pet_events_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pets: {
+        Row: {
+          birthday: string | null
+          created_at: string
+          created_by_user_id: string | null
+          deleted_at: string | null
+          deleted_by_user_id: string | null
+          id: string
+          name: string
+          photo_path: string | null
+          updated_at: string
+          updated_by_user_id: string | null
+        }
+        Insert: {
+          birthday?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          id?: string
+          name: string
+          photo_path?: string | null
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Update: {
+          birthday?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          id?: string
+          name?: string
+          photo_path?: string | null
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_path: string | null
@@ -622,8 +895,39 @@ export type Database = {
         }
         Returns: string
       }
+      fn_latest_pet_events_per_type: {
+        Args: { p_pet_id: string }
+        Returns: {
+          event_type_id: string
+          occurred_at: string
+        }[]
+      }
+      fn_log_pet_event: {
+        Args: {
+          p_done_by_user_id: string
+          p_event_type_id: string
+          p_note: string
+          p_occurred_at: string
+          p_pet_id: string
+          p_user_id: string
+          p_values: Json
+        }
+        Returns: string
+      }
       fn_uncheck_grocery_entry: {
         Args: { p_entry_id: string; p_user_id: string }
+        Returns: string
+      }
+      fn_update_pet_event: {
+        Args: {
+          p_attribute_ids: string[]
+          p_done_by_user_id: string
+          p_event_id: string
+          p_note: string
+          p_occurred_at: string
+          p_user_id: string
+          p_values: Json
+        }
         Returns: string
       }
     }

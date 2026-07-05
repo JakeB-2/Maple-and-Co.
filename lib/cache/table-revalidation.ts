@@ -10,8 +10,8 @@ import { revalidatePath } from 'next/cache'
 
 const TABLE_ROUTES: Record<string, string[]> = {
   profiles: ['/', '/settings'],
-  comments: ['/', '/spending', '/groceries'], // comments render inside entity detail drawers
-  reactions: ['/', '/spending', '/groceries'],
+  comments: ['/', '/spending', '/groceries', '/maple'], // comments render inside entity detail drawers
+  reactions: ['/', '/spending', '/groceries', '/maple'],
   spends: ['/', '/spending'],
   spend_categories: ['/spending', '/settings/categories'],
   stores: ['/groceries', '/settings/stores', '/groceries/shop/[storeId]'],
@@ -20,6 +20,11 @@ const TABLE_ROUTES: Record<string, string[]> = {
   grocery_list_entries: ['/', '/groceries', '/groceries/shop/[storeId]'],
   grocery_item_placements: ['/groceries', '/groceries/shop/[storeId]'],
   grocery_item_prices: ['/groceries', '/groceries/shop/[storeId]'],
+  pets: ['/', '/maple'],
+  pet_events: ['/', '/maple'],
+  pet_event_types: ['/', '/maple', '/settings/pet-events', '/settings/pet-events/[typeId]'],
+  pet_event_attributes: ['/', '/maple', '/settings/pet-events/[typeId]'],
+  pet_event_values: ['/', '/maple'],
 }
 
 export function revalidateTable(table: keyof typeof TABLE_ROUTES | (string & {})) {
