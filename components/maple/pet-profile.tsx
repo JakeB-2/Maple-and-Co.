@@ -5,7 +5,10 @@ import { formatDistanceToNowStrict } from 'date-fns'
 import { Pencil } from 'lucide-react'
 import type { PetRow } from '@/lib/queries/pets'
 import type { RecencyState } from '@/lib/queries/pet-recency'
-import { parseDateOnlyLocal } from '@/lib/format-date'
+import type { MedsCountdown } from '@/lib/queries/task-freshness'
+import { toEpochDay } from '@/lib/recurrence'
+import { HOUSEHOLD_TZ } from '@/lib/config'
+import { parseDateOnlyLocal, todayInTimeZone } from '@/lib/format-date'
 import { useDrawerNavHref } from '@/lib/hooks/use-drawer-nav'
 import { Surface } from '@/components/screens/surface'
 import { RecencyChip } from '@/components/shell/recency-chip'
@@ -23,6 +26,17 @@ type PetProfileProps = {
   }[]
   weightSeries: { occurred_at: string; kg: number }[]
   lastMeds: string | null
+  medsCountdown: MedsCountdown
+}
+
+// Whole-DAY meds countdown (D-026 is day-granular, like the tasks board). Using
+// formatDistanceToNowStrict on a midnight would leak hour/minute granularity
+// ("in 4 hours") the evening before a dose.
+function medsLabel(dueOn: string, today: string): string {
+  const diff = toEpochDay(dueOn) - toEpochDay(today)
+  if (diff <= 0) return '💊 Meds due'
+  if (diff === 1) return '💊 Next dose tomorrow'
+  return `💊 Next dose in ${diff} days`
 }
 
 // '3 years old'; months under a year. Tiny local date math, no library.
@@ -37,10 +51,11 @@ function ageLabel(birthday: string, now = new Date()): string | null {
   return `${years} year${years === 1 ? '' : 's'} old`
 }
 
-export function PetProfile({ pet, chips, weightSeries, lastMeds }: PetProfileProps) {
+export function PetProfile({ pet, chips, weightSeries, lastMeds, medsCountdown }: PetProfileProps) {
   const layer = useDrawerNavHref()
   const age = pet.birthday ? ageLabel(pet.birthday) : null
   const latestWeight = weightSeries[weightSeries.length - 1]
+  const today = todayInTimeZone(HOUSEHOLD_TZ)
 
   return (
     <section className="flex flex-col gap-3">
@@ -100,6 +115,10 @@ export function PetProfile({ pet, chips, weightSeries, lastMeds }: PetProfilePro
         <p className="px-1 text-sm text-muted-foreground">
           💊 Last meds {formatDistanceToNowStrict(new Date(lastMeds), { addSuffix: true })}
         </p>
+      )}
+
+      {medsCountdown && (
+        <p className="px-1 text-sm text-muted-foreground">{medsLabel(medsCountdown.dueOn, today)}</p>
       )}
     </section>
   )

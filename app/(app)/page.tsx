@@ -3,6 +3,8 @@ import { formatDistanceToNowStrict } from 'date-fns'
 import { Settings } from 'lucide-react'
 import { requireAuth } from '@/lib/auth/dal'
 import { HOUSEHOLD_TZ } from '@/lib/config'
+import { todayInTimeZone } from '@/lib/format-date'
+import { daysBetween } from '@/lib/recurrence'
 import { fetchRecentPartnerSpends } from '@/lib/queries/spends'
 import { fetchProfiles } from '@/lib/queries/profiles'
 import { fetchRecentPartnerGroceryAdds } from '@/lib/queries/grocery-list'
@@ -11,10 +13,15 @@ import { fetchPrimaryPet } from '@/lib/queries/pets'
 import { fetchPetEventTypes, typeConfig } from '@/lib/queries/pet-event-types'
 import { fetchLatestEventPerType, fetchPetEvents } from '@/lib/queries/pet-events'
 import { recencyState } from '@/lib/queries/pet-recency'
+import { fetchCalendarEvents, fetchEventExclusions } from '@/lib/queries/calendar-events'
+import { expandEventOccurrences, type EventOccurrence } from '@/lib/queries/calendar-window'
+import { fetchTasks, fetchLatestCompletions } from '@/lib/queries/tasks'
+import { buildTaskBoard } from '@/lib/queries/task-freshness'
 import { Card, CardContent } from '@/components/ui/card'
 import { Surface } from '@/components/screens/surface'
 import { AvatarChip } from '@/components/shell/avatar-chip'
 import { RecencyChip } from '@/components/shell/recency-chip'
+import { freshnessColor } from '@/components/calendar/freshness-color'
 import { Button } from '@/components/ui/button'
 
 export const dynamic = 'force-dynamic'
@@ -34,17 +41,45 @@ function householdNow() {
   return { dateLabel, greeting }
 }
 
+// An occurrence's clock label: all-day / untimed reads 'All day', otherwise the
+// 'HH:MM' start folds to a warm 12-hour label. Pure string math — SSR-safe.
+function occurrenceTimeLabel(occurrence: EventOccurrence): string {
+  const { all_day, start_time } = occurrence.event
+  if (all_day || start_time === null) return 'All day'
+  const [h, m] = start_time.split(':').map(Number)
+  const period = h < 12 ? 'am' : 'pm'
+  const hour12 = h % 12 === 0 ? 12 : h % 12
+  return `${hour12}:${String(m).padStart(2, '0')} ${period}`
+}
+
+// A task's due date relative to household today: 'due today', 'N days ago' (past
+// due), or 'due in N days' (an aging task not yet due). Never an "overdue" scold
+// (D-017) — the freshness fade already carries the urgency.
+function dueLabel(dueOn: string, today: string): string {
+  if (dueOn === today) return 'due today'
+  const days = daysBetween(dueOn, today) // positive once dueOn is in the past
+  if (days > 0) return days === 1 ? '1 day ago' : `${days} days ago`
+  const ahead = -days
+  return ahead === 1 ? 'due tomorrow' : `due in ${ahead} days`
+}
+
 // Today digest. Grows a section per milestone: partner spends (M1), grocery
 // adds (M2), Maple chips (M3), occurrences + fading tasks (M4).
 export default async function TodayPage() {
   const { user, supabase } = await requireAuth()
-  const [members, partnerSpends, partnerGroceryAdds, pet, petEventTypes] = await Promise.all([
-    fetchProfiles(supabase),
-    fetchRecentPartnerSpends(supabase, user.id),
-    fetchRecentPartnerGroceryAdds(supabase, user.id, 5),
-    fetchPrimaryPet(supabase),
-    fetchPetEventTypes(supabase),
-  ])
+  const today = todayInTimeZone(HOUSEHOLD_TZ)
+  const [members, partnerSpends, partnerGroceryAdds, pet, petEventTypes, events, exclusions, tasks, latestCompletions] =
+    await Promise.all([
+      fetchProfiles(supabase),
+      fetchRecentPartnerSpends(supabase, user.id),
+      fetchRecentPartnerGroceryAdds(supabase, user.id, 5),
+      fetchPrimaryPet(supabase),
+      fetchPetEventTypes(supabase),
+      fetchCalendarEvents(supabase),
+      fetchEventExclusions(supabase),
+      fetchTasks(supabase),
+      fetchLatestCompletions(supabase),
+    ])
   // Events need the pet id, so these trail the parallel batch. Chips read the
   // latest-per-type map (not a 60-row window, which would drop infrequent
   // types); the newest-event row needs one full event to render + link.
@@ -65,10 +100,30 @@ export default async function TodayPage() {
     ? members.find((member) => member.id === latestPetEvent.done_by_user_id)
     : undefined
 
+  // Today's occurrences: fold the flat exclusion rows into per-event date sets,
+  // then expand every event across the single-day [today, today] window.
+  const exclusionsByEvent = new Map<string, Set<string>>()
+  for (const exclusion of exclusions) {
+    const dates = exclusionsByEvent.get(exclusion.event_id)
+    if (dates) dates.add(exclusion.occurs_on)
+    else exclusionsByEvent.set(exclusion.event_id, new Set([exclusion.occurs_on]))
+  }
+  const todayOccurrences = expandEventOccurrences(events, exclusionsByEvent, { start: today, end: today })
+
+  // The digest only nudges tasks that have started to age or come due — a fresh
+  // task (done recently enough) is quietly left off so Today stays a short list.
+  const board = buildTaskBoard(tasks, latestCompletions, today)
+  const needsDoing = board.filter((row) => !row.done && !row.completedToday && row.stage !== 'fresh')
+
   // The closing "house is quiet" card is a genuine empty state — only show it
   // when nothing above it rendered. On a busy day it would otherwise contradict
   // the digest it sits under.
-  const digestEmpty = partnerSpends.length === 0 && partnerGroceryAdds.length === 0 && !pet
+  const digestEmpty =
+    partnerSpends.length === 0 &&
+    partnerGroceryAdds.length === 0 &&
+    !pet &&
+    todayOccurrences.length === 0 &&
+    needsDoing.length === 0
 
   return (
     <div className="flex flex-col gap-6">
@@ -214,11 +269,71 @@ export default async function TodayPage() {
         </section>
       )}
 
+      {todayOccurrences.length > 0 && (
+        <section className="flex flex-col gap-1.5">
+          <h2 className="px-1 text-eyebrow text-muted-foreground">Today</h2>
+          <Surface className="overflow-hidden">
+            <ul className="hairline-rows">
+              {todayOccurrences.map((occurrence) => (
+                <li key={occurrence.key}>
+                  <Link
+                    href={`/calendar?selected=${occurrence.key}`}
+                    className="flex min-h-14 touch:min-h-16 items-center gap-3 px-3 py-2 transition-colors hover:bg-surface-2"
+                  >
+                    <span className="text-lg" aria-hidden>
+                      📅
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-sm">
+                      <span className="font-medium">{occurrence.event.title}</span>
+                    </span>
+                    <span className="whitespace-nowrap text-xs text-muted-foreground">
+                      {occurrenceTimeLabel(occurrence)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Surface>
+        </section>
+      )}
+
+      {needsDoing.length > 0 && (
+        <section className="flex flex-col gap-1.5">
+          <h2 className="px-1 text-eyebrow text-muted-foreground">Needs doing</h2>
+          <Surface className="overflow-hidden">
+            <ul className="hairline-rows">
+              {needsDoing.map((row) => (
+                <li key={row.task.id}>
+                  <Link
+                    href={`/tasks?selected=${row.task.id}`}
+                    className="flex min-h-14 touch:min-h-16 items-center gap-3 px-3 py-2 transition-colors hover:bg-surface-2"
+                  >
+                    <span
+                      className="h-8 w-1 shrink-0 rounded-full"
+                      style={{ backgroundColor: freshnessColor(row.ratio) }}
+                      aria-hidden
+                    />
+                    <span className="text-lg" aria-hidden>
+                      {row.task.emoji}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate text-sm">
+                      <span className="font-medium">{row.task.title}</span>
+                    </span>
+                    <span className="whitespace-nowrap text-xs text-muted-foreground">
+                      {dueLabel(row.dueOn, today)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Surface>
+        </section>
+      )}
+
       {digestEmpty && (
         <Card>
           <CardContent className="py-8 text-center text-sm text-muted-foreground">
-            The digest fills in as features land — what&apos;s due arrives with the
-            calendar. For now: the house is quiet. 🐕
+            For now: the house is quiet. 🐕
           </CardContent>
         </Card>
       )}

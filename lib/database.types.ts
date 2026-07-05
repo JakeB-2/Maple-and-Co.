@@ -9,6 +9,113 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      calendar_event_exclusions: {
+        Row: {
+          created_at: string
+          created_by_user_id: string | null
+          event_id: string
+          id: string
+          occurs_on: string
+          updated_at: string
+          updated_by_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by_user_id?: string | null
+          event_id: string
+          id?: string
+          occurs_on: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by_user_id?: string | null
+          event_id?: string
+          id?: string
+          occurs_on?: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_event_exclusions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_events: {
+        Row: {
+          all_day: boolean
+          created_at: string
+          created_by_user_id: string | null
+          deleted_at: string | null
+          deleted_by_user_id: string | null
+          end_time: string | null
+          id: string
+          location: string | null
+          note: string | null
+          recur_interval: number | null
+          recur_month_day: number | null
+          recur_semantics: string | null
+          recur_unit: string | null
+          recur_until: string | null
+          recur_weekdays: number[] | null
+          start_time: string | null
+          starts_on: string
+          title: string
+          updated_at: string
+          updated_by_user_id: string | null
+        }
+        Insert: {
+          all_day?: boolean
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          end_time?: string | null
+          id?: string
+          location?: string | null
+          note?: string | null
+          recur_interval?: number | null
+          recur_month_day?: number | null
+          recur_semantics?: string | null
+          recur_unit?: string | null
+          recur_until?: string | null
+          recur_weekdays?: number[] | null
+          start_time?: string | null
+          starts_on: string
+          title: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Update: {
+          all_day?: boolean
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          end_time?: string | null
+          id?: string
+          location?: string | null
+          note?: string | null
+          recur_interval?: number | null
+          recur_month_day?: number | null
+          recur_semantics?: string | null
+          recur_unit?: string | null
+          recur_until?: string | null
+          recur_weekdays?: number[] | null
+          start_time?: string | null
+          starts_on?: string
+          title?: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Relationships: []
+      }
       capture_jobs: {
         Row: {
           created_at: string
@@ -881,6 +988,154 @@ export type Database = {
         }
         Relationships: []
       }
+      task_completions: {
+        Row: {
+          completed_at: string
+          completed_by_user_id: string
+          created_at: string
+          created_by_user_id: string | null
+          deleted_at: string | null
+          deleted_by_user_id: string | null
+          id: string
+          logged_pet_event_id: string | null
+          note: string | null
+          task_id: string
+          updated_at: string
+          updated_by_user_id: string | null
+        }
+        Insert: {
+          completed_at?: string
+          completed_by_user_id: string
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          id?: string
+          logged_pet_event_id?: string | null
+          note?: string | null
+          task_id: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Update: {
+          completed_at?: string
+          completed_by_user_id?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          id?: string
+          logged_pet_event_id?: string | null
+          note?: string | null
+          task_id?: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_completions_completed_by_user_id_fkey"
+            columns: ["completed_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_completions_logged_pet_event_id_fkey"
+            columns: ["logged_pet_event_id"]
+            isOneToOne: false
+            referencedRelation: "pet_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_completions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          anchor_on: string
+          created_at: string
+          created_by_user_id: string | null
+          deleted_at: string | null
+          deleted_by_user_id: string | null
+          emoji: string
+          id: string
+          log_pet_event_type_id: string | null
+          note: string | null
+          pet_id: string | null
+          recur_interval: number | null
+          recur_month_day: number | null
+          recur_semantics: string | null
+          recur_unit: string | null
+          recur_until: string | null
+          recur_weekdays: number[] | null
+          title: string
+          updated_at: string
+          updated_by_user_id: string | null
+        }
+        Insert: {
+          anchor_on: string
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          emoji?: string
+          id?: string
+          log_pet_event_type_id?: string | null
+          note?: string | null
+          pet_id?: string | null
+          recur_interval?: number | null
+          recur_month_day?: number | null
+          recur_semantics?: string | null
+          recur_unit?: string | null
+          recur_until?: string | null
+          recur_weekdays?: number[] | null
+          title: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Update: {
+          anchor_on?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          emoji?: string
+          id?: string
+          log_pet_event_type_id?: string | null
+          note?: string | null
+          pet_id?: string | null
+          recur_interval?: number | null
+          recur_month_day?: number | null
+          recur_semantics?: string | null
+          recur_unit?: string | null
+          recur_until?: string | null
+          recur_weekdays?: number[] | null
+          title?: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_log_pet_event_type_id_fkey"
+            columns: ["log_pet_event_type_id"]
+            isOneToOne: false
+            referencedRelation: "pet_event_types"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_pet_id_fkey"
+            columns: ["pet_id"]
+            isOneToOne: false
+            referencedRelation: "pets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -891,6 +1146,16 @@ export type Database = {
           p_entry_id: string
           p_price: number
           p_store_id: string
+          p_user_id: string
+        }
+        Returns: string
+      }
+      fn_complete_task: {
+        Args: {
+          p_completed_at: string
+          p_completed_by_user_id: string
+          p_note: string
+          p_task_id: string
           p_user_id: string
         }
         Returns: string
@@ -916,6 +1181,10 @@ export type Database = {
       }
       fn_uncheck_grocery_entry: {
         Args: { p_entry_id: string; p_user_id: string }
+        Returns: string
+      }
+      fn_undo_task_completion: {
+        Args: { p_completion_id: string; p_user_id: string }
         Returns: string
       }
       fn_update_pet_event: {

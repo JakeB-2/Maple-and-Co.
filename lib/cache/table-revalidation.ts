@@ -10,8 +10,8 @@ import { revalidatePath } from 'next/cache'
 
 const TABLE_ROUTES: Record<string, string[]> = {
   profiles: ['/', '/settings'],
-  comments: ['/', '/spending', '/groceries', '/maple'], // comments render inside entity detail drawers
-  reactions: ['/', '/spending', '/groceries', '/maple'],
+  comments: ['/', '/spending', '/groceries', '/maple', '/calendar', '/tasks'], // comments render inside entity detail drawers
+  reactions: ['/', '/spending', '/groceries', '/maple', '/calendar', '/tasks'],
   spends: ['/', '/spending'],
   spend_categories: ['/spending', '/settings/categories'],
   stores: ['/groceries', '/settings/stores', '/groceries/shop/[storeId]'],
@@ -25,6 +25,11 @@ const TABLE_ROUTES: Record<string, string[]> = {
   pet_event_types: ['/', '/maple', '/settings/pet-events', '/settings/pet-events/[typeId]'],
   pet_event_attributes: ['/', '/maple', '/settings/pet-events/[typeId]'],
   pet_event_values: ['/', '/maple'],
+  calendar_events: ['/', '/calendar'],
+  calendar_event_exclusions: ['/', '/calendar'],
+  // Completing a task with a pet linkage also touches pet_events + Maple.
+  tasks: ['/', '/calendar', '/tasks', '/maple'],
+  task_completions: ['/', '/calendar', '/tasks', '/maple'],
 }
 
 export function revalidateTable(table: keyof typeof TABLE_ROUTES | (string & {})) {

@@ -21,7 +21,11 @@ const SOFT_DELETABLE = [
   'pet_events',
   'pet_event_types',
   'pet_event_attributes',
-  // grows per milestone: calendar/tasks (M4)
+  'calendar_events',
+  'tasks',
+  // task_completions is deliberately NOT here: undo also retracts the linked
+  // pet event, so it rides the bespoke fn_undo_task_completion (D-017), not the
+  // generic whitelist path.
 ] as const
 
 type SoftDeletableTable = (typeof SOFT_DELETABLE)[number]

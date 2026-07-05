@@ -162,3 +162,34 @@ rendered set (`p_attribute_ids`), not all of them, so editing an old event's not
 hard-deletes values whose attribute was soft-deleted since logging. Preserves D-013's "event
 survives its schema — orphan values are expected" and undo symmetry during an attribute-delete
 window (D-012).
+
+## D-029 · Calendar events are date-anchored with optional wall-clock time (single-day)
+`calendar_events` store `starts_on date` (the day AND the recurrence grid anchor — the engine is
+date-only, D-015) plus optional `start_time`/`end_time` (wall-clock, NULL when `all_day`). No
+multi-day events in v1. Why: the household's real calendar items — vet appointments, date night,
+anniversaries, trash day — are single-day and either timed or all-day; time-of-day is presentation
+the renderer applies to each occurrence, never stored in the engine. A DB CHECK keeps the trio
+coherent (all-day ⇒ no times; an end needs a start; end > start). Multi-day trips, if ever needed,
+are a follow-up, not a v1 cliff.
+
+## D-030 · Calendar = fixed events; Tasks = check-off cadences. Fixed tasks follow their grid
+The two M4 surfaces split cleanly: **calendar events** are fixed-schedule things you *see*
+(recurrence `fixed` only, per-occurrence exclusions D-016) and are grid-expanded onto the month;
+**tasks** are things you *complete* (append-only completions D-017, freshness fade, optional pet
+linkage). Tasks are NOT expanded onto the calendar grid — they live on the board. A task's freshness
+ratio/stage is always recency-of-doing (`elapsed(lastDone→today)/period`), but its **due date**
+depends on semantics: `after_done` chases the last completion (`lastDone + interval` — right for
+"flea meds 4 wks after done"), while `fixed` follows its own grid via `nextOccurrence` independent
+of when it was actually done (a fixed "trash every Tue" stays on Tuesdays even after a late
+check-off), honoring D-015. This is why the task recurrence editor's fixed/after_done toggle and
+weekday/day-of-month picks are load-bearing, not decoration.
+
+## D-031 · Task completion + undo is one atomic RPC each (pet-event linkage rides along)
+`fn_complete_task` writes the `task_completions` row AND, when the task links a pet-event type
+(D-017), a bare `pet_events` row — both or neither (D-021; supabase-js has no transactions). The
+completion stores `logged_pet_event_id` so `fn_undo_task_completion` can soft-delete BOTH the
+completion and its auto-logged pet event, keeping Maple's feed and the next-dose countdown truthful
+on undo (mirrors D-021's uncheck-retracts-price symmetry). This is why task completions do NOT use
+the generic soft-delete whitelist — undo is bespoke. **D-026's meds countdown now lands here**: the
+Maple profile projects the next dose off the `after_done` task whose `log_pet_event_type_id` is the
+Meds type — one source of truth, no seeded recency cadence.
