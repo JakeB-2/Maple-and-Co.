@@ -4,7 +4,11 @@ import { requireAuth } from '@/lib/auth/dal'
 import { ok, fail, sanitizeActionError, type ActionResult } from '@/lib/action-result'
 import { getCreateAuditFields, getUpdateAuditFields } from '@/lib/audit'
 import { revalidateTable } from '@/lib/cache/table-revalidation'
-import { attributeOptions, type ChoiceOption } from '@/lib/queries/pet-event-types'
+import {
+  attributeOptions,
+  mergeAttributeOptions,
+  type ChoiceOption,
+} from '@/lib/queries/pet-event-types'
 import { petEventAttributeInputSchema } from '@/lib/schemas/pet-event-type'
 
 const CHOICE_KINDS: readonly string[] = ['single_choice', 'multi_choice']
@@ -68,19 +72,7 @@ export async function updatePetEventAttribute(id: string, input: unknown): Promi
   // new ids append active.
   let config: { options: ChoiceOption[] } | undefined
   if (CHOICE_KINDS.includes(fields.value_kind)) {
-    const kept = attributeOptions(existing)
-    const submitted = options ?? []
-    const submittedById = new Map(submitted.map((option) => [option.id, option]))
-    const keptIds = new Set(kept.map((option) => option.id))
-    config = {
-      options: [
-        ...kept.map((option) => {
-          const match = submittedById.get(option.id)
-          return match ? { ...match, archived: false } : { ...option, archived: true }
-        }),
-        ...submitted.filter((option) => !keptIds.has(option.id)),
-      ],
-    }
+    config = { options: mergeAttributeOptions(attributeOptions(existing), options ?? []) }
   }
 
   const { error } = await supabase

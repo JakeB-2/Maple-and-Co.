@@ -67,6 +67,31 @@ export function selectableAttributeOptions(
   return attributeOptions(attr).filter((option) => !option.archived)
 }
 
+/**
+ * Append-only merge of an attribute's choice options on edit (D-013). Logged
+ * choice_ids point at option ids, so an id is NEVER dropped:
+ * - a kept id present in the payload takes the payload's label/emoji and is
+ *   un-archived (re-typing a removed line brings it back);
+ * - a kept id missing from the payload is archived (kept for history, hidden
+ *   from new-log pickers);
+ * - a brand-new id appends active.
+ * Pure so the guarantee is unit-testable independent of the server action.
+ */
+export function mergeAttributeOptions(
+  kept: ChoiceOption[],
+  submitted: ChoiceOption[]
+): ChoiceOption[] {
+  const submittedById = new Map(submitted.map((option) => [option.id, option]))
+  const keptIds = new Set(kept.map((option) => option.id))
+  return [
+    ...kept.map((option) => {
+      const match = submittedById.get(option.id)
+      return match ? { ...match, archived: false } : { ...option, archived: true }
+    }),
+    ...submitted.filter((option) => !keptIds.has(option.id)),
+  ]
+}
+
 export async function fetchPetEventTypes(
   supabase: SupabaseClient<Database>
 ): Promise<PetEventTypeRow[]> {

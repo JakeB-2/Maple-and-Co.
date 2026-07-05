@@ -104,6 +104,29 @@ describe('expandOccurrences — yearly', () => {
   })
 })
 
+describe('interval > 1 — monthly/yearly far-bound jump', () => {
+  // The monthly/yearly grids skip straight to the first qualifying period at or
+  // before the bound (step = floor((boundIdx - anchorIdx) / interval)) instead
+  // of stepping one period at a time. interval-1 tests never exercise that jump;
+  // these pin the phase arithmetic for every-N-months/years rules.
+  it('quarterly (interval 3) jumps past a far reference to the next on-the-15th', () => {
+    const r = rule({ unit: 'month', interval: 3, monthDay: 15 })
+    expect(nextOccurrence(r, '2026-01-15', '2026-08-20')).toBe('2026-10-15')
+  })
+
+  it('quarterly-on-31 clamps each quarter to the month’s last day', () => {
+    const r = rule({ unit: 'month', interval: 3, monthDay: 31 })
+    const got = expandOccurrences(r, '2026-01-31', YEAR)
+    expect(got).toEqual(['2026-01-31', '2026-04-30', '2026-07-31', '2026-10-31'])
+  })
+
+  it('every-2-years jumps past a far reference to the next anchor-anniversary', () => {
+    const r = rule({ unit: 'year', interval: 2 })
+    // Anniversaries land on even offsets from 2026: 2026, 2028, 2030, 2032…
+    expect(nextOccurrence(r, '2026-03-10', '2031-01-01')).toBe('2032-03-10')
+  })
+})
+
 describe('expandOccurrences — until, window edges, exclusions', () => {
   it('treats `until` as inclusive', () => {
     const r = rule({ unit: 'day', interval: 1, until: '2026-03-05' })
