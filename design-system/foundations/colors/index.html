@@ -1,0 +1,167 @@
+<!-- @dsCard group="Colors" name="Palette" subtitle="Grounds, ink, household accent, 2 signature colors · light + dark" width="760" height="620" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Palette — Maple & Co</title>
+<style>
+  :root {
+    --paper: oklch(0.978 0.009 78.3);
+    --card: oklch(0.994 0.006 84.6);
+    --ink: oklch(0.280 0.027 61.6);
+    --ink-soft: oklch(0.485 0.037 65.2);
+    --line: oklch(0.905 0.023 75.8);
+    --maple: oklch(0.634 0.137 53.4);
+    --maple-deep: oklch(0.539 0.122 52.6);
+    --maple-wash: oklch(0.936 0.027 69.3);
+    --kayla: oklch(0.640 0.153 17.5);
+    --jake: oklch(0.544 0.071 153.2);
+    --good: var(--jake);
+    --shadow: 0 1px 2px rgba(78,52,26,.06), 0 8px 24px rgba(78,52,26,.07);
+    --r-sm: 10px; --r-md: 14px; --r-lg: 18px; --r-xl: 26px; --r-full: 999px;
+    --font-head: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'Trebuchet MS', system-ui, sans-serif;
+    --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  :root[data-theme="dark"] {
+    --paper: oklch(0.225 0.017 58.6);
+    --card: oklch(0.260 0.020 63.4);
+    --ink: oklch(0.932 0.018 73.1);
+    --ink-soft: oklch(0.738 0.041 68.4);
+    --line: oklch(0.327 0.025 64.3);
+    --maple: oklch(0.711 0.135 57.2);
+    --maple-deep: oklch(0.789 0.116 62.7);
+    --maple-wash: oklch(0.302 0.032 64.1);
+    --kayla: oklch(0.715 0.129 15.4);
+    --jake: oklch(0.693 0.067 154.8);
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px;
+    background: var(--paper); color: var(--ink);
+    font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  }
+  h1.ds { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em; }
+  p.lede { font-size: 12px; color: var(--ink-soft); margin: 0 0 22px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 18px; }
+  .themetag { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 12px; font-weight: 600; }
+  .swrap { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .sw { border-radius: var(--r-md); border: 1px solid var(--line); overflow: hidden; }
+  .sw .chip { height: 46px; }
+  .sw .meta { padding: 7px 9px; background: var(--card); }
+  .sw .name { font-weight: 700; font-size: 12px; }
+  .sw .val { font-size: 9.5px; color: var(--ink-soft); font-family: ui-monospace, monospace; }
+  .sect { font-size: 11px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); font-weight: 700; margin: 4px 0 8px; }</style>
+</head>
+<body>
+<h1 class="ds">Palette</h1>
+<div class="grid2"><div class="panel"><p class="themetag">Light</p>
+      <p class="sect">Grounds & ink</p>
+      <div class="swrap" style="margin-bottom:14px">
+        
+          <div class="sw">
+            <div class="chip" style="background: var(--paper)"></div>
+            <div class="meta"><div class="name">--paper</div><div class="val">ground</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--card)"></div>
+            <div class="meta"><div class="name">--card</div><div class="val">surface</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--ink)"></div>
+            <div class="meta"><div class="name">--ink</div><div class="val">text</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--ink-soft)"></div>
+            <div class="meta"><div class="name">--ink-soft</div><div class="val">muted</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--line)"></div>
+            <div class="meta"><div class="name">--line</div><div class="val">border</div></div>
+          </div>
+      </div>
+      <p class="sect">Household accent</p>
+      <div class="swrap" style="margin-bottom:14px">
+        
+          <div class="sw">
+            <div class="chip" style="background: var(--maple)"></div>
+            <div class="meta"><div class="name">--maple</div><div class="val">primary</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--maple-deep)"></div>
+            <div class="meta"><div class="name">--maple-deep</div><div class="val">deep</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--maple-wash)"></div>
+            <div class="meta"><div class="name">--maple-wash</div><div class="val">wash</div></div>
+          </div>
+      </div>
+      <p class="sect">Signature colors</p>
+      <div class="swrap" style="margin-bottom:14px">
+        
+          <div class="sw">
+            <div class="chip" style="background: var(--kayla)"></div>
+            <div class="meta"><div class="name">--kayla</div><div class="val">Kayla</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--jake)"></div>
+            <div class="meta"><div class="name">--jake</div><div class="val">Jake</div></div>
+          </div>
+      </div></div><div class="panel" data-theme="dark" style="--paper:oklch(0.225 0.017 58.6);--card:oklch(0.260 0.020 63.4);--ink:oklch(0.932 0.018 73.1);--ink-soft:oklch(0.738 0.041 68.4);--line:oklch(0.327 0.025 64.3);--maple:oklch(0.711 0.135 57.2);--maple-deep:oklch(0.789 0.116 62.7);--maple-wash:oklch(0.302 0.032 64.1);--kayla:oklch(0.715 0.129 15.4);--jake:oklch(0.693 0.067 154.8);--shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);background:var(--paper);color:var(--ink)">
+         <p class="themetag">Dark</p>
+      <p class="sect">Grounds & ink</p>
+      <div class="swrap" style="margin-bottom:14px">
+        
+          <div class="sw">
+            <div class="chip" style="background: var(--paper)"></div>
+            <div class="meta"><div class="name">--paper</div><div class="val">ground</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--card)"></div>
+            <div class="meta"><div class="name">--card</div><div class="val">surface</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--ink)"></div>
+            <div class="meta"><div class="name">--ink</div><div class="val">text</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--ink-soft)"></div>
+            <div class="meta"><div class="name">--ink-soft</div><div class="val">muted</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--line)"></div>
+            <div class="meta"><div class="name">--line</div><div class="val">border</div></div>
+          </div>
+      </div>
+      <p class="sect">Household accent</p>
+      <div class="swrap" style="margin-bottom:14px">
+        
+          <div class="sw">
+            <div class="chip" style="background: var(--maple)"></div>
+            <div class="meta"><div class="name">--maple</div><div class="val">primary</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--maple-deep)"></div>
+            <div class="meta"><div class="name">--maple-deep</div><div class="val">deep</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--maple-wash)"></div>
+            <div class="meta"><div class="name">--maple-wash</div><div class="val">wash</div></div>
+          </div>
+      </div>
+      <p class="sect">Signature colors</p>
+      <div class="swrap" style="margin-bottom:14px">
+        
+          <div class="sw">
+            <div class="chip" style="background: var(--kayla)"></div>
+            <div class="meta"><div class="name">--kayla</div><div class="val">Kayla</div></div>
+          </div>
+          <div class="sw">
+            <div class="chip" style="background: var(--jake)"></div>
+            <div class="meta"><div class="name">--jake</div><div class="val">Jake</div></div>
+          </div>
+      </div></div></div>
+</body>
+</html>

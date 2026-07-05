@@ -7,31 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       comments: {
@@ -132,6 +107,114 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      spend_categories: {
+        Row: {
+          color: string
+          created_at: string
+          created_by_user_id: string | null
+          deleted_at: string | null
+          deleted_by_user_id: string | null
+          emoji: string
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+          updated_by_user_id: string | null
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          emoji?: string
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          emoji?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Relationships: []
+      }
+      spends: {
+        Row: {
+          amount: number
+          category_id: string | null
+          created_at: string
+          created_by_user_id: string | null
+          currency: string
+          deleted_at: string | null
+          deleted_by_user_id: string | null
+          id: string
+          note: string | null
+          photo_path: string | null
+          spent_by_user_id: string
+          spent_on: string
+          updated_at: string
+          updated_by_user_id: string | null
+        }
+        Insert: {
+          amount: number
+          category_id?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          currency?: string
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          id?: string
+          note?: string | null
+          photo_path?: string | null
+          spent_by_user_id: string
+          spent_on?: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          currency?: string
+          deleted_at?: string | null
+          deleted_by_user_id?: string | null
+          id?: string
+          note?: string | null
+          photo_path?: string | null
+          spent_by_user_id?: string
+          spent_on?: string
+          updated_at?: string
+          updated_by_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "spends_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "spend_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "spends_spent_by_user_id_fkey"
+            columns: ["spent_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -267,9 +350,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },

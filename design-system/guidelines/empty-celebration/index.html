@@ -1,0 +1,80 @@
+<!-- @dsCard group="Guidelines" name="Empty & celebration" subtitle="Delight scaled to rarity · humor never in errors" width="720" height="440" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Empty states & celebration — Maple & Co</title>
+<style>
+  :root {
+    --paper: oklch(0.978 0.009 78.3);
+    --card: oklch(0.994 0.006 84.6);
+    --ink: oklch(0.280 0.027 61.6);
+    --ink-soft: oklch(0.485 0.037 65.2);
+    --line: oklch(0.905 0.023 75.8);
+    --maple: oklch(0.634 0.137 53.4);
+    --maple-deep: oklch(0.539 0.122 52.6);
+    --maple-wash: oklch(0.936 0.027 69.3);
+    --kayla: oklch(0.640 0.153 17.5);
+    --jake: oklch(0.544 0.071 153.2);
+    --good: var(--jake);
+    --shadow: 0 1px 2px rgba(78,52,26,.06), 0 8px 24px rgba(78,52,26,.07);
+    --r-sm: 10px; --r-md: 14px; --r-lg: 18px; --r-xl: 26px; --r-full: 999px;
+    --font-head: Seravek, 'Gill Sans Nova', Ubuntu, Calibri, 'Trebuchet MS', system-ui, sans-serif;
+    --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  :root[data-theme="dark"] {
+    --paper: oklch(0.225 0.017 58.6);
+    --card: oklch(0.260 0.020 63.4);
+    --ink: oklch(0.932 0.018 73.1);
+    --ink-soft: oklch(0.738 0.041 68.4);
+    --line: oklch(0.327 0.025 64.3);
+    --maple: oklch(0.711 0.135 57.2);
+    --maple-deep: oklch(0.789 0.116 62.7);
+    --maple-wash: oklch(0.302 0.032 64.1);
+    --kayla: oklch(0.715 0.129 15.4);
+    --jake: oklch(0.693 0.067 154.8);
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 28px;
+    background: var(--paper); color: var(--ink);
+    font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  }
+  h1.ds { font-family: var(--font-head); font-size: 15px; font-weight: 700; margin: 0 0 4px; letter-spacing: -0.01em; }
+  p.lede { font-size: 12px; color: var(--ink-soft); margin: 0 0 22px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 18px; }
+  .themetag { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 12px; font-weight: 600; }
+  .cols { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow); padding:18px; }
+  .card h3 { font-family:var(--font-head); margin:0 0 8px; font-size:15px; }
+  .empty { text-align:center; padding:14px; }
+  .empty .em { font-size:44px; }
+  .empty p { color:var(--ink-soft); font-size:13px; margin:6px 0 0; }
+  .scale { list-style:none; padding:0; margin:0; font-size:13px; }
+  .scale li { padding:8px 0; border-bottom:1px dashed var(--line); display:flex; gap:8px; }
+  .scale li:last-child { border-bottom:0; }
+  .scale b { color:var(--maple-deep); }</style>
+</head>
+<body>
+<h1 class="ds">Empty states & celebration</h1>
+
+    <div class="cols">
+      <div class="card">
+        <h3>Empty states have personality</h3>
+        <div class="empty"><div class="em">😴</div><p>Everything's done. Maple's napping — come back later.</p></div>
+      </div>
+      <div class="card">
+        <h3>Celebration scaled to rarity</h3>
+        <ul class="scale">
+          <li><b>Daily log</b> check-morph + soft haptic</li>
+          <li><b>Weekly streak</b> a small Maple wiggle</li>
+          <li><b>Rare milestone</b> paw-print confetti + zoomies</li>
+        </ul>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--ink-soft);margin-top:16px">The anti-confetti rule: if everything celebrates, nothing does. Humor lives in empty and all-done states — never in error states.</p>
+</body>
+</html>

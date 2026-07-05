@@ -8,6 +8,9 @@
 //     - DetailPanelSkeleton   — detail page (title + metadata grid + body)
 //     - PanelBarsSkeleton     — streamed side panel (N stacked full-width bars)
 //     - SideRailSkeleton      — workspace side rail (stacked cards)
+//     - FormPanelSkeleton     — form body inside a drawer (re-exports
+//                                FormSkeleton for symmetry; old import path
+//                                also still works)
 //
 //   States
 //     - EmptyState         — "no records yet" with an optional CTA
@@ -110,6 +113,10 @@ export function SideRailSkeleton({ cards = 3 }: { cards?: number }) {
     </div>
   )
 }
+
+// Re-exported for parity with the new naming. Existing callers of
+// `<FormSkeleton />` keep working via the original module path.
+export { FormSkeleton as FormPanelSkeleton } from '@/components/screens/form-skeleton'
 
 // ---------------------------------------------------------------------------
 // State primitives

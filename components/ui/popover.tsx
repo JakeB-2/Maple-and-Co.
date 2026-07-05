@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Popover as PopoverPrimitive } from "radix-ui"
 
+import { DrawerPortalContext } from "@/components/screens/detail-drawer"
 import { cn } from "@/lib/utils"
 
 function Popover({
@@ -26,8 +27,9 @@ function PopoverContent({
 }: React.ComponentProps<typeof PopoverPrimitive.Content> & {
   container?: HTMLElement | null
 }) {
+  const fallbackContainer = React.useContext(DrawerPortalContext)
   return (
-    <PopoverPrimitive.Portal container={container ?? undefined}>
+    <PopoverPrimitive.Portal container={container ?? fallbackContainer ?? undefined}>
       <PopoverPrimitive.Content
         data-slot="popover-content"
         align={align}

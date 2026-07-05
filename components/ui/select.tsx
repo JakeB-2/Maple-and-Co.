@@ -3,6 +3,7 @@
 import * as React from "react"
 import { Select as SelectPrimitive } from "radix-ui"
 
+import { DrawerPortalContext } from "@/components/screens/detail-drawer"
 import { cn } from "@/lib/utils"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
@@ -68,8 +69,9 @@ function SelectContent({
 }: React.ComponentProps<typeof SelectPrimitive.Content> & {
   container?: HTMLElement | null
 }) {
+  const fallbackContainer = React.useContext(DrawerPortalContext)
   return (
-    <SelectPrimitive.Portal container={container ?? undefined}>
+    <SelectPrimitive.Portal container={container ?? fallbackContainer ?? undefined}>
       <SelectPrimitive.Content
         data-slot="select-content"
         data-align-trigger={position === "item-aligned"}

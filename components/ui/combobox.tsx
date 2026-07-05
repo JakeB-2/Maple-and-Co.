@@ -4,6 +4,7 @@ import * as React from "react"
 import { Combobox as ComboboxPrimitive } from "@base-ui/react"
 
 import { cn } from "@/lib/utils"
+import { DrawerPortalContext } from "@/components/screens/detail-drawer"
 import { Button } from "@/components/ui/button"
 import {
   InputGroup,
@@ -116,8 +117,14 @@ function ComboboxContent({
     /** Portal container — pass a Sheet/Dialog content node to keep clicks inside the focus trap. */
     container?: React.ComponentProps<typeof ComboboxPrimitive.Portal>["container"]
   }) {
+  // When no explicit container is passed, fall back to the nearest drawer/dialog
+  // body published via DrawerPortalContext (FormDrawer/DetailDrawer/Modals set
+  // it). Without this, raw <Combobox> usages inside a Radix focus trap portal to
+  // <body> and the trap swallows item clicks (keyboard still works). Outside a
+  // drawer the context is null, so behaviour is unchanged (portal to body).
+  const fallbackContainer = React.useContext(DrawerPortalContext)
   return (
-    <ComboboxPrimitive.Portal container={container ?? undefined}>
+    <ComboboxPrimitive.Portal container={container ?? fallbackContainer ?? undefined}>
       <ComboboxPrimitive.Positioner
         side={side}
         sideOffset={sideOffset}

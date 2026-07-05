@@ -1,20 +1,31 @@
 // Uniform result envelope for all server actions. Actions never throw to the
 // client — they return an ActionResult so forms can render errors and
 // warnings without a crash boundary.
+//
+// Warnings protocol (matches the copied CrudForm/useActionSubmit machinery):
+// warnings WITHOUT an error means the write was NOT committed — the UI shows
+// the warnings with a force checkbox and resubmits with force=true.
+
+export type ActionWarning = {
+  kind: string
+  message: string
+  meta?: Record<string, unknown>
+}
 
 export type ActionResult<T = void> =
-  | { data: T; error: null; warnings?: string[] }
-  | { data: null; error: string; warnings?: string[] }
+  | { data: T; error: null; warnings?: ActionWarning[] }
+  | { data: null; error: string; warnings?: ActionWarning[] }
 
-export function ok<T>(data: T, warnings?: string[]): ActionResult<T> {
+export function ok<T>(data: T, warnings?: ActionWarning[]): ActionResult<T> {
   return warnings?.length ? { data, error: null, warnings } : { data, error: null }
 }
 
-export function fail<T = void>(error: string, warnings?: string[]): ActionResult<T> {
+export function fail<T = void>(error: string, warnings?: ActionWarning[]): ActionResult<T> {
   return warnings?.length ? { data: null, error, warnings } : { data: null, error }
 }
 
-export function warn<T>(data: T, warnings: string[]): ActionResult<T> {
+/** Soft-warning result: data present but NOT committed — see protocol above. */
+export function warn<T>(data: T, warnings: ActionWarning[]): ActionResult<T> {
   return { data, error: null, warnings }
 }
 

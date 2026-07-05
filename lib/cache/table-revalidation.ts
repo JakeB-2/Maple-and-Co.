@@ -10,8 +10,10 @@ import { revalidatePath } from 'next/cache'
 
 const TABLE_ROUTES: Record<string, string[]> = {
   profiles: ['/', '/settings'],
-  comments: ['/'], // comment counts surface on entity screens; entity actions also revalidate their own routes
-  reactions: ['/'],
+  comments: ['/', '/spending'], // comments render inside entity detail drawers
+  reactions: ['/', '/spending'],
+  spends: ['/', '/spending'],
+  spend_categories: ['/spending', '/settings/categories'],
 }
 
 export function revalidateTable(table: keyof typeof TABLE_ROUTES | (string & {})) {
