@@ -4,12 +4,7 @@
 
 import { requireAuth } from '@/lib/auth/dal'
 import { ok, fail, sanitizeActionError, type ActionResult } from '@/lib/action-result'
-import {
-  getCreateAuditFields,
-  getUpdateAuditFields,
-  getDeleteAuditFields,
-  getRestoreAuditFields,
-} from '@/lib/audit'
+import { getCreateAuditFields, getUpdateAuditFields } from '@/lib/audit'
 import { revalidateTable } from '@/lib/cache/table-revalidation'
 import { spendInputSchema } from '@/lib/schemas/spend'
 
@@ -41,32 +36,6 @@ export async function updateSpend(id: string, input: unknown): Promise<ActionRes
     .update({ ...parsed.data, ...getUpdateAuditFields(user.id) })
     .eq('id', id)
     .is('deleted_at', null)
-
-  if (error) return fail(sanitizeActionError(error))
-  revalidateTable('spends')
-  return ok({ id })
-}
-
-export async function softDeleteSpend(id: string): Promise<ActionResult<{ id: string }>> {
-  const { user, supabase } = await requireAuth()
-
-  const { error } = await supabase
-    .from('spends')
-    .update(getDeleteAuditFields(user.id))
-    .eq('id', id)
-
-  if (error) return fail(sanitizeActionError(error))
-  revalidateTable('spends')
-  return ok({ id })
-}
-
-export async function restoreSpend(id: string): Promise<ActionResult<{ id: string }>> {
-  const { user, supabase } = await requireAuth()
-
-  const { error } = await supabase
-    .from('spends')
-    .update(getRestoreAuditFields(user.id))
-    .eq('id', id)
 
   if (error) return fail(sanitizeActionError(error))
   revalidateTable('spends')

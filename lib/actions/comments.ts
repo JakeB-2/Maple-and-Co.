@@ -6,7 +6,7 @@
 import { z } from 'zod'
 import { requireAuth } from '@/lib/auth/dal'
 import { ok, fail, sanitizeActionError, type ActionResult } from '@/lib/action-result'
-import { getCreateAuditFields, getDeleteAuditFields } from '@/lib/audit'
+import { getCreateAuditFields } from '@/lib/audit'
 import { revalidateTable } from '@/lib/cache/table-revalidation'
 
 const ENTITY_TYPES = ['spend', 'grocery_item', 'pet_event', 'calendar_event', 'task'] as const
@@ -33,16 +33,6 @@ export async function addComment(input: unknown): Promise<ActionResult<{ id: str
   if (error) return fail(sanitizeActionError(error))
   revalidateTable('comments')
   return ok({ id: data.id })
-}
-
-export async function softDeleteComment(id: string): Promise<ActionResult<{ id: string }>> {
-  const { user, supabase } = await requireAuth()
-
-  const { error } = await supabase.from('comments').update(getDeleteAuditFields(user.id)).eq('id', id)
-
-  if (error) return fail(sanitizeActionError(error))
-  revalidateTable('comments')
-  return ok({ id })
 }
 
 const reactionInputSchema = z.object({
