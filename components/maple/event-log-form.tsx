@@ -209,6 +209,7 @@ export function EventLogForm(props: EventLogFormProps) {
           forceLabel="I reviewed this warning - save anyway"
         />
         <FormActions
+          cancelHref={props.mode === 'new' ? '/maple' : `/maple?selected=${props.event.id}`}
           submitLabel={props.mode === 'new' ? 'Log it' : 'Save Changes'}
           error={submitError}
         />

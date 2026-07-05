@@ -65,6 +65,11 @@ export default async function TodayPage() {
     ? members.find((member) => member.id === latestPetEvent.done_by_user_id)
     : undefined
 
+  // The closing "house is quiet" card is a genuine empty state — only show it
+  // when nothing above it rendered. On a busy day it would otherwise contradict
+  // the digest it sits under.
+  const digestEmpty = partnerSpends.length === 0 && partnerGroceryAdds.length === 0 && !pet
+
   return (
     <div className="flex flex-col gap-6">
       <header className="flex items-start justify-between pt-2">
@@ -209,12 +214,14 @@ export default async function TodayPage() {
         </section>
       )}
 
-      <Card>
-        <CardContent className="py-8 text-center text-sm text-muted-foreground">
-          The digest fills in as features land — what&apos;s due arrives with the
-          calendar. For now: the house is quiet. 🐕
-        </CardContent>
-      </Card>
+      {digestEmpty && (
+        <Card>
+          <CardContent className="py-8 text-center text-sm text-muted-foreground">
+            The digest fills in as features land — what&apos;s due arrives with the
+            calendar. For now: the house is quiet. 🐕
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
