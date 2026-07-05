@@ -10,10 +10,16 @@ import { revalidatePath } from 'next/cache'
 
 const TABLE_ROUTES: Record<string, string[]> = {
   profiles: ['/', '/settings'],
-  comments: ['/', '/spending'], // comments render inside entity detail drawers
-  reactions: ['/', '/spending'],
+  comments: ['/', '/spending', '/groceries'], // comments render inside entity detail drawers
+  reactions: ['/', '/spending', '/groceries'],
   spends: ['/', '/spending'],
   spend_categories: ['/spending', '/settings/categories'],
+  stores: ['/groceries', '/settings/stores'],
+  store_sections: ['/groceries', '/settings/stores'],
+  grocery_items: ['/', '/groceries'],
+  grocery_list_entries: ['/', '/groceries'],
+  grocery_item_placements: ['/groceries'],
+  grocery_item_prices: ['/groceries'],
 }
 
 export function revalidateTable(table: keyof typeof TABLE_ROUTES | (string & {})) {

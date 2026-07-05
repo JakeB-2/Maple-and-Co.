@@ -41,3 +41,34 @@ WHERE NOT EXISTS (
     SELECT 1 FROM public.spend_categories c
     WHERE lower(c.name) = lower(v.name) AND c.deleted_at IS NULL
 );
+
+-- ----------------------------------------------------------------------------
+-- M2: one starter store (rename it in settings) + generic sections in a
+-- sensible walk order. Insert-if-missing; in-app edits win on re-runs.
+-- ----------------------------------------------------------------------------
+INSERT INTO public.stores (name, emoji, currency, sort_order)
+SELECT 'Grocery store', '🛒', 'MXN', 10
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.stores s
+    WHERE lower(s.name) = 'grocery store' AND s.deleted_at IS NULL
+);
+
+INSERT INTO public.store_sections (store_id, name, sort_order)
+SELECT s.id, v.name, v.sort_order
+FROM (VALUES
+    ('Produce',   10),
+    ('Dairy',     20),
+    ('Meat',      30),
+    ('Frozen',    40),
+    ('Pantry',    50),
+    ('Household', 60),
+    ('Checkout',  70)
+) AS v(name, sort_order)
+JOIN public.stores s
+    ON lower(s.name) = 'grocery store' AND s.deleted_at IS NULL
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.store_sections sec
+    WHERE sec.store_id = s.id
+      AND lower(sec.name) = lower(v.name)
+      AND sec.deleted_at IS NULL
+);
