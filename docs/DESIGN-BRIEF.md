@@ -81,3 +81,9 @@ Finch (compassion) · Duolingo (milestone craft) · Huckleberry (2-tap grid) · 
 
 **Constraints:** Tailwind v4 token format · shadcn component base · bottom-sheet mobile patterns ·
 ≥ 44px touch targets · light + dark · installable PWA.
+
+> **Tap targets — interim vs target.** ≥ 44px is the M5 *target* the visual pass ships. Until
+> then the pre-M5 build floors dense icon controls at 36px on purpose (the `touch:` variant in
+> `globals.css`, R-UX-022) rather than re-tokenizing density twice. So a 36px control today is
+> the documented interim, not a regression against this line; the bump to 44px lands with the
+> M5 component visual language (Deliverable 4), not before.

@@ -11,111 +11,118 @@
    `pointer-coarse:` built-in, so hybrid touch-laptops aren't missed. Used to
    floor tap targets (dense h-7/size-7 controls grow to ~36px) without changing
    the layout grammar or re-tokenizing density. Pair with `(hover: none)` for
-   hover-affordance removal. */
+   hover-affordance removal.
+   NOTE: 36px is the deliberate pre-M5 interim floor, NOT the final target. The
+   DESIGN-BRIEF's ≥44px constraint is the M5 goal — the bump rides the M5 visual
+   pass (component visual language) so density isn't re-tokenized twice. See
+   docs/DESIGN-BRIEF.md → Constraints ("Tap targets — interim vs target"). */
 @custom-variant touch (@media (any-pointer: coarse));
 
 /*
-  Global design tokens — SKELETON.
-  The token NAMES below are the full set the copied ui components consume;
-  the VALUES are plain neutral shadcn defaults (zinc-ish placeholders).
-  The Maple & Co household palette lands in the M5 design pass — fill the
-  values in this block then; do not rename tokens.
+  Global design tokens — the Maple & Co warm household palette (M5).
+  The token NAMES are the full set the copied ui components consume; the VALUES
+  are the warm cream/ink/Maple-amber palette (a general design guideline, not a
+  spec — tuned to taste). Do not rename tokens; the graphite preset + text/radius
+  presets below still layer over these.
   Type scale lives in --fs-*; elevation in --elevation-* (depth over borders).
 */
 /* `.theme-light` is paired with `:root` so any subtree can force the light
    palette regardless of the global `.dark` class (available for any
    always-light surface). */
 :root, .theme-light {
-  /* Light mode — plain neutral grey/off-white base (no hue tint).
-       card / background 1.000 (white)  →  surface-2 0.970  →  surface-3 0.940 */
-  --background:          oklch(1 0 0);
-  --card:                oklch(1 0 0);
-  --surface-2:           oklch(0.970 0 0);
-  --surface-3:           oklch(0.940 0 0);
+  /* Maple & Co warm household palette (M5). Warm cream paper ground; cards a
+     touch lighter so they float above it; warm brown-grey ink and warm borders.
+       background 0.978 (paper) → card 0.994 → surface-2 0.953 → surface-3 0.928 */
+  --background:          oklch(0.978 0.009 78.3);
+  --card:                oklch(0.994 0.006 84.6);
+  --surface-2:           oklch(0.953 0.014 78);
+  --surface-3:           oklch(0.928 0.017 77);
 
-  --foreground:          oklch(0.205 0 0);
-  --card-foreground:     oklch(0.205 0 0);
-  --foreground-hi:       oklch(0.145 0 0);
+  --foreground:          oklch(0.280 0.027 61.6);
+  --card-foreground:     oklch(0.280 0.027 61.6);
+  --foreground-hi:       oklch(0.205 0.030 60);
 
-  --muted:               oklch(0.970 0 0);
+  --muted:               oklch(0.949 0.015 77);
   /* Kept dark enough for placeholders + subtitle text to meet WCAG AA. */
-  --muted-foreground:    oklch(0.505 0 0);
+  --muted-foreground:    oklch(0.485 0.037 65.2);
 
-  --border:              oklch(0.922 0 0);
-  --border-strong:       oklch(0.800 0 0);
-  --input:               oklch(0.970 0 0);
+  --border:              oklch(0.905 0.023 75.8);
+  --border-strong:       oklch(0.820 0.030 74);
+  --input:               oklch(0.905 0.023 75.8);
 
   /* Header bands blend with whatever surface they sit on (transparent) —
      distinction is bold uppercase label + a bottom border, never a fill. */
   --surface-header:      transparent;
 
-  --primary:             oklch(0.205 0 0);
-  --primary-foreground:  oklch(0.985 0 0);
-  --primary-soft:        oklch(0.205 0 0 / 0.08);
-  --primary-soft-2:      oklch(0.205 0 0 / 0.14);
+  /* Primary = Maple's warm amber — the one brand/action color. */
+  --primary:             oklch(0.634 0.137 53.4);
+  --primary-foreground:  oklch(0.994 0.006 84.6);
+  --primary-soft:        oklch(0.634 0.137 53.4 / 0.12);
+  --primary-soft-2:      oklch(0.634 0.137 53.4 / 0.20);
 
   /* Secondary accent — reserved for cross-record navigation and the info
-     family, so --primary stays unambiguously "primary action". Neutral grey
-     placeholder until the M5 palette pass; `-soft` tints are for chips/links. */
-  --accent-2:            oklch(0.440 0 0);
-  --accent-2-foreground: oklch(0.985 0 0);
-  --accent-2-soft:       oklch(0.440 0 0 / 0.10);
-  --accent-2-soft-2:     oklch(0.440 0 0 / 0.18);
+     family, so --primary stays unambiguously "primary action". A muted slate
+     that reads cool against Maple's warm primary; `-soft` tints for chips/links. */
+  --accent-2:            oklch(0.505 0.055 245);
+  --accent-2-foreground: oklch(0.994 0.006 84.6);
+  --accent-2-soft:       oklch(0.505 0.055 245 / 0.10);
+  --accent-2-soft-2:     oklch(0.505 0.055 245 / 0.18);
 
-  --secondary:           oklch(0.970 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
+  --secondary:           oklch(0.936 0.027 69.3);
+  --secondary-foreground: oklch(0.280 0.027 61.6);
 
-  --accent:              oklch(0.970 0 0);
-  --accent-foreground:   oklch(0.205 0 0);
+  --accent:              oklch(0.948 0.018 74);
+  --accent-foreground:   oklch(0.280 0.027 61.6);
 
-  --destructive:         oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
+  --destructive:         oklch(0.577 0.205 26);
+  --destructive-foreground: oklch(0.994 0.006 84.6);
 
-  --popover:             oklch(1 0 0);
-  --popover-foreground:  oklch(0.205 0 0);
+  --popover:             oklch(0.994 0.006 84.6);
+  --popover-foreground:  oklch(0.280 0.027 61.6);
 
-  --ring:                oklch(0.708 0 0);
+  --ring:                oklch(0.634 0.137 53.4);
 
   --radius:              0.5rem;
   --drawer-header-h:     116px;
   --drawer-sm:           480px;
   --drawer-md:           720px;
   --drawer-lg:           960px;
-  --shadow-card:         0 6px 18px -6px rgba(31,42,56,0.14), 0 2px 5px -2px rgba(31,42,56,0.08);
-  --shadow-card-sm:      0 1px 2px rgba(31,42,56,0.07);
-  --shadow-pop:          0 12px 34px -8px rgba(31,42,56,0.20);
+  /* Warm brown-tinted shadows to match the cream grounds (was cool blue-grey). */
+  --shadow-card:         0 6px 18px -6px rgba(78,52,26,0.13), 0 2px 5px -2px rgba(78,52,26,0.08);
+  --shadow-card-sm:      0 1px 2px rgba(78,52,26,0.07);
+  --shadow-pop:          0 12px 34px -8px rgba(78,52,26,0.18);
   --ease:                cubic-bezier(0.2, 0, 0, 1);
   --dur-fast:            120ms;
   --dur:                 180ms;
   --dur-slow:            240ms;
 
-  --sidebar:             oklch(0.985 0 0);
-  --sidebar-foreground:  oklch(0.205 0 0);
-  --sidebar-primary:     oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent:      oklch(0.205 0 0 / 0.08);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border:      oklch(0.922 0 0);
-  --sidebar-ring:        oklch(0.708 0 0);
+  --sidebar:             oklch(0.988 0.007 84);
+  --sidebar-foreground:  oklch(0.280 0.027 61.6);
+  --sidebar-primary:     oklch(0.634 0.137 53.4);
+  --sidebar-primary-foreground: oklch(0.994 0.006 84.6);
+  --sidebar-accent:      oklch(0.634 0.137 53.4 / 0.10);
+  --sidebar-accent-foreground: oklch(0.280 0.027 61.6);
+  --sidebar-border:      oklch(0.905 0.023 75.8);
+  --sidebar-ring:        oklch(0.634 0.137 53.4);
 
-  /* Semantic colors — functional status hues (not brand palette); the M5
-     design pass may tune them. */
-  --color-success:       oklch(0.580 0.140 160);
-  --color-warning:       oklch(0.620 0.135 70);
-  --color-info:          oklch(0.560 0.150 245);
-  --color-danger:        oklch(0.575 0.190 27);
+  /* Semantic colors — functional status hues (not brand palette), warm-harmonized.
+     Success leans on Jake's green; warning is amber; info the secondary slate. */
+  --color-success:       oklch(0.560 0.095 153);
+  --color-warning:       oklch(0.680 0.130 68);
+  --color-info:          oklch(0.520 0.090 240);
+  --color-danger:        oklch(0.577 0.200 27);
 
   --color-success-bg:    color-mix(in srgb, var(--color-success) 13%, var(--card));
   --color-warning-bg:    color-mix(in srgb, var(--color-warning) 15%, var(--card));
   --color-info-bg:       color-mix(in srgb, var(--color-info) 13%, var(--card));
   --color-danger-bg:     color-mix(in srgb, var(--color-danger) 12%, var(--card));
 
-  /* Chart — shadcn neutral-theme defaults; replaced in the M5 palette pass. */
-  --chart-1:             oklch(0.646 0.222 41.116);
-  --chart-2:             oklch(0.6 0.118 184.704);
-  --chart-3:             oklch(0.398 0.07 227.392);
-  --chart-4:             oklch(0.828 0.189 84.429);
-  --chart-5:             oklch(0.769 0.188 70.08);
+  /* Chart — warm household categorical set: Maple, Jake-green, slate, Kayla-coral, gold. */
+  --chart-1:             oklch(0.634 0.137 53.4);
+  --chart-2:             oklch(0.560 0.090 153);
+  --chart-3:             oklch(0.560 0.090 240);
+  --chart-4:             oklch(0.640 0.153 17.5);
+  --chart-5:             oklch(0.720 0.120 82);
 
   /* ---------------------------------------------------------------------
      Type scale — three heading roles + body/meta.
@@ -153,79 +160,81 @@
   --elevation-pop:       var(--shadow-pop);
 }
 
-/* Dark mode — plain neutral placeholders (see skeleton note above). */
+/* Dark mode — warm charcoal grounds (Maple & Co palette, M5). Same warm hue
+   family as light so the app reads as one system across themes. */
 .dark {
-  --background:          oklch(0.145 0 0);
-  --card:                oklch(0.205 0 0);
-  --surface-2:           oklch(0.269 0 0);
-  --surface-3:           oklch(0.320 0 0);
+  --background:          oklch(0.225 0.017 58.6);
+  --card:                oklch(0.260 0.020 63.4);
+  --surface-2:           oklch(0.305 0.022 62);
+  --surface-3:           oklch(0.352 0.024 62);
 
-  --foreground:          oklch(0.985 0 0);
-  --card-foreground:     oklch(0.960 0 0);
-  --foreground-hi:       oklch(1 0 0);
+  --foreground:          oklch(0.932 0.018 73.1);
+  --card-foreground:     oklch(0.932 0.018 73.1);
+  --foreground-hi:       oklch(0.985 0.012 76);
 
-  --muted:               oklch(0.269 0 0);
-  --muted-foreground:    oklch(0.708 0 0);
+  --muted:               oklch(0.305 0.022 62);
+  --muted-foreground:    oklch(0.738 0.041 68.4);
 
-  --border:              oklch(1 0 0 / 10%);
-  --border-strong:       oklch(1 0 0 / 24%);
-  --input:               oklch(1 0 0 / 15%);
+  --border:              oklch(0.327 0.025 64.3);
+  --border-strong:       oklch(0.440 0.030 64);
+  --input:               oklch(0.360 0.024 64);
 
-  --primary:             oklch(0.922 0 0);
-  --primary-foreground:  oklch(0.205 0 0);
-  --primary-soft:        oklch(0.922 0 0 / 0.10);
-  --primary-soft-2:      oklch(0.922 0 0 / 0.16);
+  /* Primary = Maple's amber, lifted for the dark ground; dark ink sits on it. */
+  --primary:             oklch(0.711 0.135 57.2);
+  --primary-foreground:  oklch(0.225 0.017 58.6);
+  --primary-soft:        oklch(0.711 0.135 57.2 / 0.16);
+  --primary-soft-2:      oklch(0.711 0.135 57.2 / 0.26);
 
   /* Header bands blend with their surface (transparent) — see light note. */
   --surface-header:      transparent;
 
-  /* Secondary accent — neutral grey placeholder, lifted for legibility on the
-     dark surface. */
-  --accent-2:            oklch(0.750 0 0);
-  --accent-2-foreground: oklch(0.145 0 0);
-  --accent-2-soft:       oklch(0.750 0 0 / 0.16);
-  --accent-2-soft-2:     oklch(0.750 0 0 / 0.24);
+  /* Secondary accent — a muted slate lifted for legibility on the dark
+     surface; reads cool against Maple's warm primary. */
+  --accent-2:            oklch(0.700 0.070 240);
+  --accent-2-foreground: oklch(0.225 0.017 58.6);
+  --accent-2-soft:       oklch(0.700 0.070 240 / 0.16);
+  --accent-2-soft-2:     oklch(0.700 0.070 240 / 0.24);
 
-  --secondary:           oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
+  --secondary:           oklch(0.302 0.032 64.1);
+  --secondary-foreground: oklch(0.932 0.018 73.1);
 
-  --accent:              oklch(0.269 0 0);
-  --accent-foreground:   oklch(0.985 0 0);
+  --accent:              oklch(0.320 0.022 62);
+  --accent-foreground:   oklch(0.932 0.018 73.1);
 
-  --destructive:         oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
+  --destructive:         oklch(0.700 0.185 25);
+  --destructive-foreground: oklch(0.985 0.006 84);
 
-  --popover:             oklch(0.269 0 0);
-  --popover-foreground:  oklch(0.960 0 0);
+  --popover:             oklch(0.260 0.020 63.4);
+  --popover-foreground:  oklch(0.932 0.018 73.1);
 
-  --ring:                oklch(0.556 0 0);
+  --ring:                oklch(0.711 0.135 57.2);
 
-  --sidebar:             oklch(0.205 0 0);
-  --sidebar-foreground:  oklch(0.960 0 0);
-  --sidebar-primary:     oklch(0.922 0 0);
-  --sidebar-primary-foreground: oklch(0.205 0 0);
-  --sidebar-accent:      oklch(0.922 0 0 / 0.10);
-  --sidebar-accent-foreground: oklch(0.922 0 0);
-  --sidebar-border:      oklch(1 0 0 / 10%);
-  --sidebar-ring:        oklch(0.556 0 0);
+  --sidebar:             oklch(0.260 0.020 63.4);
+  --sidebar-foreground:  oklch(0.932 0.018 73.1);
+  --sidebar-primary:     oklch(0.711 0.135 57.2);
+  --sidebar-primary-foreground: oklch(0.225 0.017 58.6);
+  --sidebar-accent:      oklch(0.711 0.135 57.2 / 0.16);
+  --sidebar-accent-foreground: oklch(0.932 0.018 73.1);
+  --sidebar-border:      oklch(0.327 0.025 64.3);
+  --sidebar-ring:        oklch(0.711 0.135 57.2);
 
-  /* Semantic colors */
-  --color-success:       oklch(0.70 0.160 160);
-  --color-warning:       oklch(0.78 0.160 80);
-  --color-info:          oklch(0.68 0.160 230);
-  --color-danger:        oklch(0.65 0.200 25);
+  /* Semantic colors — warm-harmonized dark variants. */
+  --color-success:       oklch(0.700 0.110 154);
+  --color-warning:       oklch(0.780 0.140 78);
+  --color-info:          oklch(0.700 0.100 240);
+  --color-danger:        oklch(0.680 0.190 27);
 
   --color-success-bg:    rgba(52, 211, 153, 0.12);
   --color-warning-bg:    rgba(251, 191, 36, 0.12);
   --color-info-bg:       rgba(96, 165, 250, 0.12);
   --color-danger-bg:     rgba(248, 113, 113, 0.12);
 
-  /* Chart — shadcn neutral-theme dark defaults; replaced in the M5 pass. */
-  --chart-1:             oklch(0.488 0.243 264.376);
-  --chart-2:             oklch(0.696 0.17 162.48);
-  --chart-3:             oklch(0.769 0.188 70.08);
-  --chart-4:             oklch(0.627 0.265 303.9);
-  --chart-5:             oklch(0.645 0.246 16.439);
+  /* Chart — warm household categorical set, lifted for the dark ground. */
+  --chart-1:             oklch(0.711 0.135 57.2);
+  --chart-2:             oklch(0.700 0.100 154);
+  --chart-3:             oklch(0.700 0.100 240);
+  --chart-4:             oklch(0.715 0.129 15.4);
+  --chart-5:             oklch(0.800 0.120 82);
 }
 
 /*

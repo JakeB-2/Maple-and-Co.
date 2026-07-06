@@ -154,7 +154,7 @@ export default async function TodayPage() {
           </span>
         ))}
         <span className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium">
-          <span className="size-4 rounded-full bg-[#c9702e]" aria-hidden />
+          <span className="size-4 rounded-full bg-primary" aria-hidden />
           Maple 🐾
         </span>
       </div>
