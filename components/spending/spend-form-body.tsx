@@ -3,6 +3,7 @@
 // to the client form.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { DEFAULT_CURRENCY, HOUSEHOLD_TZ } from '@/lib/config'
 import { todayInTimeZone } from '@/lib/format-date'
 import { fetchSpend } from '@/lib/queries/spends'
@@ -26,9 +27,7 @@ export async function SpendFormBody(props: SpendFormBodyProps) {
   if (props.mode === 'edit') {
     if (!spend) {
       return (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          This spend is gone — it may have just been deleted.
-        </p>
+        <FormBodyNotFound noun="spend" />
       )
     }
     const defaults: SpendFormDefaults = {

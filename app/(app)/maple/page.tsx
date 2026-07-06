@@ -30,7 +30,13 @@ export const dynamic = 'force-dynamic'
 export default async function MaplePage({
   searchParams,
 }: {
-  searchParams: Promise<{ new_log?: string; selected?: string; edit?: string; edit_pet?: string }>
+  searchParams: Promise<{
+    new_log?: string
+    selected?: string
+    edit?: string
+    edit_pet?: string
+    capture?: string
+  }>
 }) {
   const { user, supabase } = await requireAuth()
   const params = await searchParams
@@ -104,6 +110,12 @@ export default async function MaplePage({
   )
 
   const attributesById = Object.fromEntries(attributes.map((attribute) => [attribute.id, attribute]))
+  // Types with any required attribute open the full form; the rest auto-log on
+  // tile tap (QuickLog / R5). Derived here since the page already has every
+  // attribute in hand.
+  const requiredTypeIds = [
+    ...new Set(attributes.filter((attribute) => attribute.required).map((attribute) => attribute.event_type_id)),
+  ]
   const profileChips = profiles.map(({ id, display_name, signature_color }) => ({
     id,
     display_name,
@@ -120,7 +132,13 @@ export default async function MaplePage({
         medsCountdown={medsCountdown}
       />
 
-      <QuickLog types={types} />
+      <QuickLog
+        types={types}
+        requiredTypeIds={requiredTypeIds}
+        petId={pet.id}
+        currentUserId={user.id}
+        captureParam={params.capture === '1' ? '1' : null}
+      />
 
       <EventFeed
         events={events}

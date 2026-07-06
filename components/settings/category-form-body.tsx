@@ -1,6 +1,7 @@
 // Async server bodies for the category create/edit drawers.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { fetchSpendCategories } from '@/lib/queries/spend-categories'
 import { CategoryForm, type CategoryFormDefaults } from './category-form'
 
@@ -14,9 +15,7 @@ export async function CategoryFormBody(props: CategoryFormBodyProps) {
     const row = categories.find((category) => category.id === props.id)
     if (!row) {
       return (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          This category is gone — it may have just been deleted.
-        </p>
+        <FormBodyNotFound noun="category" />
       )
     }
     const defaults: CategoryFormDefaults = {

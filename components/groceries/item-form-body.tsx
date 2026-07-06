@@ -1,6 +1,7 @@
 // Async server body for the catalog-item edit drawer.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { fetchGroceryItem } from '@/lib/queries/grocery-catalog'
 import { ItemForm, type ItemFormDefaults } from './item-form'
 
@@ -12,9 +13,7 @@ export async function ItemFormBody(props: ItemFormBodyProps) {
 
   if (!item) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        This item is gone — it may have just been deleted.
-      </p>
+      <FormBodyNotFound noun="item" />
     )
   }
 

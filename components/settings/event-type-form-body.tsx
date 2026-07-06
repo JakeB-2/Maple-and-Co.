@@ -1,6 +1,7 @@
 // Async server bodies for the event-type create/edit drawers.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { fetchPetEventTypes, typeConfig } from '@/lib/queries/pet-event-types'
 import { EventTypeForm, type EventTypeFormDefaults } from './event-type-form'
 
@@ -14,9 +15,7 @@ export async function EventTypeFormBody(props: EventTypeFormBodyProps) {
     const row = types.find((type) => type.id === props.id)
     if (!row) {
       return (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          This event type is gone — it may have just been deleted.
-        </p>
+        <FormBodyNotFound noun="event type" />
       )
     }
     const config = typeConfig(row)

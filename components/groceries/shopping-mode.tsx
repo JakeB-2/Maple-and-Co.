@@ -16,14 +16,8 @@ import type { ProfileChip } from '@/components/screens/entity-social'
 import { Surface } from '@/components/screens/surface'
 import { AvatarChip } from '@/components/shell/avatar-chip'
 import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { DrawerShell } from '@/components/screens/detail-drawer'
+import { FormDrawerChrome } from '@/components/screens/form-drawer'
 import {
   InputGroup,
   InputGroupAddon,
@@ -38,7 +32,11 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-function PricePromptDialog({
+// The per-item price check-off. This is THE one-handed hot path ("one hand on
+// the cart") — so it rides the app's bottom Sheet (mobilePresentation="bottom")
+// like every other create/edit surface, not a centered Dialog. DrawerShell also
+// lifts the sheet above the soft keyboard so the numeric input stays visible.
+function PricePromptSheet({
   entry,
   currency,
   lastPrice,
@@ -71,49 +69,56 @@ function PricePromptDialog({
   }
 
   return (
-    <Dialog
+    <DrawerShell
       open
-      onOpenChange={(open) => {
-        if (!open) onClose()
+      onOpenChange={(next) => {
+        if (!next) onClose()
       }}
+      mobilePresentation="bottom"
+      size="sm"
+      title={`${entry.item.emoji} ${entry.item.name}`}
     >
-      <DialogContent className="sm:max-w-sm">
-        <DialogHeader>
-          <DialogTitle>
+      <FormDrawerChrome
+        mode="create"
+        title={
+          <>
             {entry.item.emoji} {entry.item.name}
-          </DialogTitle>
-          <DialogDescription>How much was it?</DialogDescription>
-        </DialogHeader>
-        <InputGroup>
-          <InputGroupAddon>
-            <InputGroupText>{CURRENCY_SYMBOLS[currency]}</InputGroupText>
-          </InputGroupAddon>
-          <InputGroupInput
-            inputMode="decimal"
-            autoFocus
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            onFocus={(event) => event.currentTarget.select()}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                event.preventDefault()
-                save()
-              }
-            }}
-            placeholder="0.00"
-            aria-label="Price"
-          />
-        </InputGroup>
-        <DialogFooter>
-          <Button variant="ghost" onClick={() => onSubmit(null)}>
-            Skip price
-          </Button>
-          <Button onClick={save} disabled={invalid}>
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </>
+        }
+        subtitle="How much was it?"
+      >
+        <div className="flex flex-col gap-4">
+          <InputGroup>
+            <InputGroupAddon>
+              <InputGroupText>{CURRENCY_SYMBOLS[currency]}</InputGroupText>
+            </InputGroupAddon>
+            <InputGroupInput
+              inputMode="decimal"
+              autoFocus
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              onFocus={(event) => event.currentTarget.select()}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault()
+                  save()
+                }
+              }}
+              placeholder="0.00"
+              aria-label="Price"
+            />
+          </InputGroup>
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" onClick={() => onSubmit(null)}>
+              Skip price
+            </Button>
+            <Button onClick={save} disabled={invalid}>
+              Save
+            </Button>
+          </div>
+        </div>
+      </FormDrawerChrome>
+    </DrawerShell>
   )
 }
 
@@ -412,7 +417,7 @@ export function ShoppingMode({
       )}
 
       {pricePrompt && (
-        <PricePromptDialog
+        <PricePromptSheet
           key={pricePrompt.entry.id}
           entry={pricePrompt.entry}
           currency={currency}

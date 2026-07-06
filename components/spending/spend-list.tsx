@@ -1,8 +1,6 @@
 'use client'
 
-import Link from 'next/link'
 import { format, subDays } from 'date-fns'
-import { Plus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatLocalDate, parseDateOnlyLocal } from '@/lib/format-date'
 import { formatSpendAmount } from '@/lib/queries/spend-totals'
@@ -10,7 +8,6 @@ import type { SpendRow } from '@/lib/queries/spends'
 import { useUrlRowSelection } from '@/components/screens/use-url-row-selection'
 import { Surface } from '@/components/screens/surface'
 import { AvatarChip } from '@/components/shell/avatar-chip'
-import { Button } from '@/components/ui/button'
 
 function dayLabel(date: string, today: string): string {
   if (date === today) return 'Today'
@@ -29,7 +26,7 @@ export function SpendList({
   selectedId: string | null
   today: string
 }) {
-  const { selectRow, selectedRowClassName, newHref } = useUrlRowSelection(selectedId)
+  const { selectRow, selectedRowClassName } = useUrlRowSelection(selectedId)
 
   // Rows arrive sorted by spent_on desc — group them preserving that order.
   const days: { date: string; rows: SpendRow[] }[] = []
@@ -90,19 +87,6 @@ export function SpendList({
           Nothing logged this month yet. Coffee counts. ☕
         </Surface>
       )}
-
-      <div className="pointer-events-none fixed inset-x-0 bottom-24 z-40 mx-auto flex w-full max-w-lg justify-end px-4">
-        <Button
-          asChild
-          size="lg"
-          className="pointer-events-auto rounded-full shadow-lg"
-          aria-label="Log a spend"
-        >
-          <Link href={newHref()}>
-            <Plus /> Log spend
-          </Link>
-        </Button>
-      </div>
     </div>
   )
 }

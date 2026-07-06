@@ -11,7 +11,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { format } from 'date-fns'
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { parseDateOnlyLocal } from '@/lib/format-date'
 import { useDrawerNavHref } from '@/lib/hooks/use-drawer-nav'
@@ -86,7 +86,7 @@ export function CalendarView({
 
   const searchParams = useSearchParams()
   const selectedKey = searchParams.get('selected')
-  const { selectRow, selectedRowClassName, newHref } = useUrlRowSelection(selectedKey)
+  const { selectRow, selectedRowClassName } = useUrlRowSelection(selectedKey)
 
   // Open day defaults to today when it's in view, else the 1st of the month.
   const [selectedDay, setSelectedDay] = useState(
@@ -200,19 +200,6 @@ export function CalendarView({
           )}
         </Surface>
       </section>
-
-      <div className="pointer-events-none fixed inset-x-0 bottom-24 z-40 mx-auto flex w-full max-w-lg justify-end px-4">
-        <Button
-          asChild
-          size="lg"
-          className="pointer-events-auto rounded-full shadow-lg"
-          aria-label="New event"
-        >
-          <Link href={newHref()}>
-            <Plus /> New event
-          </Link>
-        </Button>
-      </div>
     </div>
   )
 }

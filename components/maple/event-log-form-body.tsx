@@ -4,6 +4,7 @@
 // the client EventLogForm.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { fetchAttributesForType, fetchPetEventType } from '@/lib/queries/pet-event-types'
 import { fetchPetEvent } from '@/lib/queries/pet-events'
 import { fetchProfiles } from '@/lib/queries/profiles'
@@ -32,11 +33,7 @@ export async function EventLogFormBody(props: EventLogFormBodyProps) {
       fetchProfiles(supabase),
     ])
     if (!type) {
-      return (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          This event type is gone — it may have just been deleted.
-        </p>
-      )
+      return <FormBodyNotFound noun="event type" />
     }
     return (
       <EventLogForm
@@ -57,11 +54,7 @@ export async function EventLogFormBody(props: EventLogFormBodyProps) {
     fetchProfiles(supabase),
   ])
   if (!event) {
-    return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        This log is gone — it may have just been deleted.
-      </p>
-    )
+    return <FormBodyNotFound noun="log" />
   }
   const attributes = await fetchAttributesForType(supabase, event.event_type_id)
   return (

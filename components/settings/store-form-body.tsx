@@ -1,6 +1,7 @@
 // Async server bodies for the store create/edit drawers.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { DEFAULT_CURRENCY, type Currency } from '@/lib/config'
 import { fetchStores } from '@/lib/queries/stores'
 import { StoreForm, type StoreFormDefaults } from './store-form'
@@ -15,9 +16,7 @@ export async function StoreFormBody(props: StoreFormBodyProps) {
     const row = stores.find((store) => store.id === props.id)
     if (!row) {
       return (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          This store is gone — it may have just been deleted.
-        </p>
+        <FormBodyNotFound noun="store" />
       )
     }
     const defaults: StoreFormDefaults = {

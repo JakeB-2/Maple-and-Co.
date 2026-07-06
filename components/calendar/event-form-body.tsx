@@ -3,6 +3,7 @@
 // the client form.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { HOUSEHOLD_TZ } from '@/lib/config'
 import { todayInTimeZone } from '@/lib/format-date'
 import { fetchCalendarEvent } from '@/lib/queries/calendar-events'
@@ -16,9 +17,7 @@ export async function EventFormBody(props: { mode: 'new' } | { mode: 'edit'; id:
   if (props.mode === 'edit') {
     if (!event) {
       return (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          This event is gone — it may have just been deleted.
-        </p>
+        <FormBodyNotFound noun="event" />
       )
     }
     // The six embedded recur_* columns reconstruct the rule directly (D-015).

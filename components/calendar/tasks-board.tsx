@@ -7,10 +7,9 @@
 // NEVER red (D-017). Completing a recurring task resets it to fresh (ratio ~0),
 // which is the satisfying "done for now" beat.
 
-import Link from 'next/link'
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
-import { Check, Plus } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toEpochDay } from '@/lib/recurrence'
 import type { TaskBoardRow } from '@/lib/queries/task-freshness'
@@ -19,7 +18,6 @@ import { useMutationRefresh } from '@/lib/hooks/use-mutation-refresh'
 import { freshnessColor } from '@/components/calendar/freshness-color'
 import { useUrlRowSelection } from '@/components/screens/use-url-row-selection'
 import { Surface } from '@/components/screens/surface'
-import { Button } from '@/components/ui/button'
 
 // Due & aging float to the top, fresh in the middle, completed one-offs sink to
 // the bottom. Recurring tasks completed today read 'fresh' (freshness reset), so
@@ -42,7 +40,7 @@ function dueLabel(row: TaskBoardRow, today: string): string {
 }
 
 export function TasksBoard({ board, today }: { board: TaskBoardRow[]; today: string }) {
-  const { selectRow, newHref } = useUrlRowSelection()
+  const { selectRow } = useUrlRowSelection()
   const { refreshNow } = useMutationRefresh()
   const [, startTransition] = useTransition()
   // The single in-flight completion — its row shows the optimistic checked fill
@@ -156,19 +154,6 @@ export function TasksBoard({ board, today }: { board: TaskBoardRow[]; today: str
           No tasks yet — add the household’s recurring rhythms. 🌿
         </Surface>
       )}
-
-      <div className="pointer-events-none fixed inset-x-0 bottom-24 z-40 mx-auto flex w-full max-w-lg justify-end px-4">
-        <Button
-          asChild
-          size="lg"
-          className="pointer-events-auto rounded-full shadow-lg"
-          aria-label="Add a task"
-        >
-          <Link href={newHref()}>
-            <Plus /> Add task
-          </Link>
-        </Button>
-      </div>
     </div>
   )
 }

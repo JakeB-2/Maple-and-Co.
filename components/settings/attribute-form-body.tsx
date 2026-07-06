@@ -1,6 +1,7 @@
 // Async server bodies for the attribute create/edit drawers.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { fetchAttributesForType, selectableAttributeOptions } from '@/lib/queries/pet-event-types'
 import { AttributeForm, type AttributeFormDefaults, type ValueKind } from './attribute-form'
 
@@ -14,9 +15,7 @@ export async function AttributeFormBody(props: AttributeFormBodyProps) {
     const row = attributes.find((attribute) => attribute.id === props.id)
     if (!row) {
       return (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          This attribute is gone — it may have just been deleted.
-        </p>
+        <FormBodyNotFound noun="attribute" />
       )
     }
     // Kind locks only once a value exists (same predicate the action uses).

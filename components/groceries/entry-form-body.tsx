@@ -2,6 +2,7 @@
 // drawer's Suspense boundary, then hand plain props to the client form.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { fetchEntry } from '@/lib/queries/grocery-list'
 import { EntryForm, type EntryFormDefaults } from './entry-form'
 
@@ -13,9 +14,7 @@ export async function EntryFormBody(props: EntryFormBodyProps) {
 
   if (!entry) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        This entry is gone — it may have just been deleted.
-      </p>
+      <FormBodyNotFound noun="entry" />
     )
   }
 

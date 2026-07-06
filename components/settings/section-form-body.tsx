@@ -1,6 +1,7 @@
 // Async server bodies for the section create/edit drawers.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { fetchStoreSections } from '@/lib/queries/stores'
 import { SectionForm, type SectionFormDefaults } from './section-form'
 
@@ -14,9 +15,7 @@ export async function SectionFormBody(props: SectionFormBodyProps) {
     const row = sections.find((section) => section.id === props.id)
     if (!row) {
       return (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          This section is gone — it may have just been deleted.
-        </p>
+        <FormBodyNotFound noun="section" />
       )
     }
     const defaults: SectionFormDefaults = {

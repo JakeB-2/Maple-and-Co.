@@ -7,6 +7,18 @@ import { CircleCheckIcon, InfoIcon, TriangleAlertIcon, OctagonXIcon, Loader2Icon
 
 const DEFAULT_POSITION: NonNullable<ToasterProps["position"]> = "bottom-right"
 
+// The tab bar is fixed bottom (~64px + safe area) and the capture FAB sits at
+// bottom-24 (96px) on the right, ~40px tall. A default bottom-right toast lands
+// right on the FAB — bad, because the Undo action toast (spend/grocery/pet
+// delete, task-complete undo, occurrence-delete undo) is the one you most need
+// to tap. Lift the stack above the FAB so Undo stays reachable (R-review R2).
+const DEFAULT_OFFSET: NonNullable<ToasterProps["offset"]> = { bottom: "5rem", right: "1.5rem" }
+const DEFAULT_MOBILE_OFFSET: NonNullable<ToasterProps["mobileOffset"]> = {
+  bottom: "calc(env(safe-area-inset-bottom) + 9rem)",
+  left: "1rem",
+  right: "1rem",
+}
+
 function renderedToastId(
   toasts: ToastT[],
   toastElement: HTMLElement,
@@ -58,6 +70,8 @@ function ClickToDismissToasts({
 const Toaster = ({
   className,
   position = DEFAULT_POSITION,
+  offset = DEFAULT_OFFSET,
+  mobileOffset = DEFAULT_MOBILE_OFFSET,
   theme: themeProp,
   toastOptions,
   ...props
@@ -72,6 +86,8 @@ const Toaster = ({
         {...props}
         theme={(themeProp ?? theme) as ToasterProps["theme"]}
         position={position}
+        offset={offset}
+        mobileOffset={mobileOffset}
         className={["toaster group", className].filter(Boolean).join(" ")}
         icons={{
           success: (

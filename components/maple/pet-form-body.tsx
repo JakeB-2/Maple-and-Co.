@@ -1,6 +1,7 @@
 // Async server body for the pet edit drawer.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { fetchPrimaryPet } from '@/lib/queries/pets'
 import { PetForm, type PetFormDefaults } from './pet-form'
 
@@ -14,9 +15,7 @@ export async function PetFormBody(props: PetFormBodyProps) {
 
   if (!pet || pet.id !== props.id) {
     return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        This pet is gone — it may have just been deleted.
-      </p>
+      <FormBodyNotFound noun="pet" />
     )
   }
 

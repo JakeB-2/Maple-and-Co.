@@ -3,6 +3,7 @@
 // boundary, then hand plain props to the client TaskForm.
 
 import { requireAuth } from '@/lib/auth/dal'
+import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
 import { HOUSEHOLD_TZ } from '@/lib/config'
 import { todayInTimeZone } from '@/lib/format-date'
 import { fetchTask } from '@/lib/queries/tasks'
@@ -27,9 +28,7 @@ export async function TaskFormBody(props: TaskFormBodyProps) {
   if (props.mode === 'edit') {
     if (!task) {
       return (
-        <p className="py-8 text-center text-sm text-muted-foreground">
-          This task is gone — it may have just been deleted.
-        </p>
+        <FormBodyNotFound noun="task" />
       )
     }
     const defaults: TaskFormDefaults = {
