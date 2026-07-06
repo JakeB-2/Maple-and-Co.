@@ -1,5 +1,7 @@
 'use client'
 
+import type { EntityKind } from '@/lib/queries/entities'
+import { KIND_COPY } from '@/components/entities/entity-kind'
 import { SortableSettingsList } from './sortable-settings-list'
 import { VALUE_KIND_LABELS, type ValueKind } from './attribute-form'
 
@@ -13,17 +15,19 @@ export type AttributeListRow = {
 }
 
 export function AttributeList({
+  kind,
   typeId,
   attributes,
 }: {
+  kind: EntityKind
   typeId: string
   attributes: AttributeListRow[]
 }) {
   return (
     <SortableSettingsList
       items={attributes}
-      table="pet_event_attributes"
-      editHref={(attribute) => `/settings/pet-events/${typeId}?edit=${attribute.id}`}
+      table="event_type_attributes"
+      editHref={(attribute) => `${KIND_COPY[kind].base}/types/${typeId}?edit=${attribute.id}`}
       rowLabel={(attribute) => attribute.label}
       deleteNoun="Attribute"
       newLabel="New attribute"

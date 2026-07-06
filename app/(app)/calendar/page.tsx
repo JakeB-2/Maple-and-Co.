@@ -16,7 +16,7 @@ import {
 import { fetchComments, fetchReactions } from '@/lib/queries/comments'
 import { fetchProfiles } from '@/lib/queries/profiles'
 import { ResourceFormDrawers } from '@/components/screens/resource-form-drawers'
-import { SectionTabs } from '@/components/calendar/section-tabs'
+import { PageHeader } from '@/components/shell/page-header'
 import { CalendarView, MonthNav } from '@/components/calendar/calendar-view'
 import { OccurrenceDetailDrawer } from '@/components/calendar/occurrence-detail-drawer'
 import { EventFormBody } from '@/components/calendar/event-form-body'
@@ -68,12 +68,10 @@ export default async function CalendarPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="pt-2">
-        <h1 className="text-2xl font-bold tracking-tight">Calendar</h1>
-        <p className="text-sm text-muted-foreground">The household rhythm — what&apos;s coming up.</p>
-      </header>
+      {/* Calendar and Tasks are independent surfaces now (D-030, D-033) — no
+          section tabs; the manage board lives at /tasks via More Actions. */}
+      <PageHeader title="Calendar" subtitle="The household rhythm — what's coming up." />
 
-      <SectionTabs />
       <MonthNav month={month} />
       {/* Key by month so paging resets the locally-tracked open day. */}
       <CalendarView key={month} matrix={matrix} occurrences={occurrences} month={month} today={today} />

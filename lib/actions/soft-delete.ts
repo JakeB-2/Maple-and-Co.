@@ -18,14 +18,16 @@ const SOFT_DELETABLE = [
   'store_sections',
   'grocery_items',
   'grocery_list_entries',
-  'pet_events',
-  'pet_event_types',
-  'pet_event_attributes',
+  'entities',
+  'entity_events',
+  'event_types',
+  'event_type_attributes',
+  'needs',
   'calendar_events',
   'tasks',
   // task_completions is deliberately NOT here: undo also retracts the linked
-  // pet event, so it rides the bespoke fn_undo_task_completion (D-017), not the
-  // generic whitelist path.
+  // entity event, so it rides the bespoke fn_undo_task_completion (D-017), not
+  // the generic whitelist path.
 ] as const
 
 type SoftDeletableTable = (typeof SOFT_DELETABLE)[number]

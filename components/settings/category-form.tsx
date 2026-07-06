@@ -51,7 +51,7 @@ export function CategoryForm(props: CategoryFormProps) {
         mode="new"
         schema={categoryFormSchema}
         label="Category"
-        listHref="/settings/categories"
+        listHref="/finance/categories"
         redirectMode="list"
         defaultValues={props.defaultValues}
         transform={transform}
@@ -68,7 +68,7 @@ export function CategoryForm(props: CategoryFormProps) {
       id={props.id}
       schema={categoryFormSchema}
       label="Category"
-      listHref="/settings/categories"
+      listHref="/finance/categories"
       redirectMode="list"
       defaultValues={props.defaultValues}
       transform={transform}

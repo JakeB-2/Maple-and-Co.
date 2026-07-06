@@ -1,7 +1,8 @@
 'use server'
 
-// Completing/undoing a task goes through atomic RPCs: a completion linked to a
-// pet-log task also writes the mirrored pet_event, so both commit or fail as one.
+// Completing/undoing a task goes through atomic RPCs: a completion on a
+// need-linked task also writes the mirrored entity_event (D-032; linked back via
+// task_completions.logged_event_id), so both commit or fail as one.
 
 import { requireAuth } from '@/lib/auth/dal'
 import { ok, fail, sanitizeActionError, type ActionResult } from '@/lib/action-result'
@@ -28,7 +29,7 @@ export async function completeTask(input: unknown): Promise<ActionResult<{ id: s
   if (!data) return fail('That task is gone.')
 
   revalidateTable('task_completions')
-  revalidateTable('pet_events')
+  revalidateTable('entity_events')
   return ok({ id: data })
 }
 
@@ -44,6 +45,6 @@ export async function undoTaskCompletion(completionId: string): Promise<ActionRe
   if (!data) return fail('That was already undone.')
 
   revalidateTable('task_completions')
-  revalidateTable('pet_events')
+  revalidateTable('entity_events')
   return ok(null)
 }

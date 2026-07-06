@@ -15,13 +15,19 @@ export const taskInputSchema = z
     emoji: z.string().trim().min(1).max(8),
     anchor_on: z.iso.date(),
     recurrence: recurrenceInputSchema, // RecurrenceRule | null
-    pet_id: z.uuid().nullable(),
-    log_pet_event_type_id: z.uuid().nullable(),
+    need_id: z.uuid().nullable(),
+    entity_label: z
+      .string()
+      .trim()
+      .max(60)
+      .transform((v) => (v === '' ? null : v))
+      .nullable(),
   })
-  // A Maple-log linkage is anchored to a pet — you can't log an event with no pet.
-  .refine((v) => v.log_pet_event_type_id === null || v.pet_id !== null, {
-    message: 'Linking a Maple log needs a pet',
-    path: ['log_pet_event_type_id'],
+  // Mutually exclusive (mirrors the DB CHECK, D-032): a task either links a
+  // need or carries a free-text label — the board chip has exactly one source.
+  .refine((v) => v.need_id === null || v.entity_label === null, {
+    message: 'Pick a need or a label, not both',
+    path: ['entity_label'],
   })
 
 export type TaskInput = z.infer<typeof taskInputSchema>

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import type { RecencyState } from '@/lib/queries/pet-recency'
+import type { RecencyState } from '@/lib/queries/need-recency'
 import { cn } from '@/lib/utils'
 
 // Staleness fades, never shames (D-017): overdue dims, nothing goes red.

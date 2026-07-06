@@ -8,7 +8,7 @@ import { requireAuth } from '@/lib/auth/dal'
 import { ok, fail, type ActionResult } from '@/lib/action-result'
 
 // One storage folder per owning feature — extend when a new feature uploads.
-const MEDIA_FOLDERS = ['spends', 'pets'] as const
+const MEDIA_FOLDERS = ['spends', 'pets', 'plants', 'household'] as const
 
 export async function uploadMediaImage(formData: FormData): Promise<ActionResult<{ path: string }>> {
   const { user, supabase } = await requireAuth()

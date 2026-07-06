@@ -2,10 +2,14 @@
 
 import { requireAuth } from '@/lib/auth/dal'
 import { FormBodyNotFound } from '@/components/screens/form-body-not-found'
-import { fetchAttributesForType, selectableAttributeOptions } from '@/lib/queries/pet-event-types'
+import type { EntityKind } from '@/lib/queries/entities'
+import { fetchAttributesForType, selectableAttributeOptions } from '@/lib/queries/event-types'
 import { AttributeForm, type AttributeFormDefaults, type ValueKind } from './attribute-form'
 
-type AttributeFormBodyProps = { typeId: string } & ({ mode: 'new' } | { mode: 'edit'; id: string })
+type AttributeFormBodyProps = { kind: EntityKind; typeId: string } & (
+  | { mode: 'new' }
+  | { mode: 'edit'; id: string }
+)
 
 export async function AttributeFormBody(props: AttributeFormBodyProps) {
   const { supabase } = await requireAuth()
@@ -14,13 +18,11 @@ export async function AttributeFormBody(props: AttributeFormBodyProps) {
   if (props.mode === 'edit') {
     const row = attributes.find((attribute) => attribute.id === props.id)
     if (!row) {
-      return (
-        <FormBodyNotFound noun="attribute" />
-      )
+      return <FormBodyNotFound noun="attribute" />
     }
     // Kind locks only once a value exists (same predicate the action uses).
     const { data: logged } = await supabase
-      .from('pet_event_values')
+      .from('entity_event_values')
       .select('id')
       .eq('attribute_id', row.id)
       .limit(1)
@@ -41,6 +43,7 @@ export async function AttributeFormBody(props: AttributeFormBodyProps) {
     return (
       <AttributeForm
         mode="edit"
+        kind={props.kind}
         id={row.id}
         hasLogged={(logged?.length ?? 0) > 0}
         defaultValues={defaults}
@@ -59,5 +62,5 @@ export async function AttributeFormBody(props: AttributeFormBodyProps) {
     options_text: '',
     sort_order: nextSortOrder,
   }
-  return <AttributeForm mode="new" defaultValues={defaults} />
+  return <AttributeForm mode="new" kind={props.kind} defaultValues={defaults} />
 }

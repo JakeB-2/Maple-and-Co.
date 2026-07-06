@@ -1,12 +1,19 @@
 'use client'
 
-// The one settings-list shape: a reorderable Surface of rows, each with
-// move-up/move-down/edit/delete, plus a "New X" button and empty state. The
-// five settings lists (categories, stores, sections, event types, attributes)
-// were verbatim clones of this except for the row's lead content, the table
-// name, the edit href, and labels — D-024 generalized the server-side reorder
-// action but left the client list UI cloned. This absorbs it (no per-entity
-// clones); callers supply only what actually differs.
+// The one settings-list shape: a reorderable Surface of rows plus a "New X"
+// button and empty state. The five settings lists (categories, stores,
+// sections, event types, attributes) were verbatim clones of this except for
+// the row's lead content, the table name, the edit href, and labels — D-024
+// generalized the server-side reorder action but left the client list UI
+// cloned. This absorbs it (no per-entity clones); callers supply only what
+// actually differs.
+//
+// Row layout is mobile-first (IA rework D-033): the old row crammed the lead
+// next to FOUR icon buttons (up/down/edit/delete), which squeezed the lead to
+// a sliver on phones and truncated names. Now the lead owns the row's width,
+// the whole row surface is the edit link, and the rarer actions (move up/down,
+// delete) live behind one trailing overflow menu (the shared MoreActionsMenu —
+// no new menu clone).
 
 import { useState } from 'react'
 import type { ReactNode } from 'react'
@@ -20,6 +27,7 @@ import { useUrlRowSelection } from '@/components/screens/use-url-row-selection'
 import { useDrawerNavHref } from '@/lib/hooks/use-drawer-nav'
 import { Surface } from '@/components/screens/surface'
 import { Button } from '@/components/ui/button'
+import { MoreActionsMenu } from '@/components/ui/more-actions-menu'
 
 export type SortableSettingsListProps<T extends { id: string }> = {
   items: T[]
@@ -36,8 +44,10 @@ export type SortableSettingsListProps<T extends { id: string }> = {
   deleteNoun: string
   /** Rows for which delete is disabled (e.g. system_key-anchored built-ins). */
   canDelete?: (item: T) => boolean
-  /** Tooltip explaining why delete is disabled, shown on non-deletable rows. */
-  deleteDisabledReason?: string
+  /** Tooltip explaining why delete is disabled, shown on non-deletable rows.
+   *  A function form covers lists where rows are blocked for different reasons
+   *  (event types: built-in vs in-use-by-a-need). */
+  deleteDisabledReason?: string | ((item: T) => string | undefined)
   /** Label for the "New X" button. */
   newLabel: string
   /** Empty-state copy when there are no rows. */
@@ -81,46 +91,70 @@ export function SortableSettingsList<T extends { id: string }>({
             const busy = movingId === item.id || deletingId === item.id
             const label = rowLabel(item)
             const deletable = canDelete ? canDelete(item) : true
+            const disabledReason =
+              typeof deleteDisabledReason === 'function'
+                ? deleteDisabledReason(item)
+                : deleteDisabledReason
             return (
               <li
                 key={item.id}
-                className="flex min-h-14 touch:min-h-16 items-center gap-3 px-3 py-1.5"
+                className="relative flex min-h-14 touch:min-h-16 items-center gap-3 px-3 py-2"
               >
-                {renderLead(item)}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={`Move ${label} up`}
-                  disabled={busy || index === 0}
-                  onClick={() => move(item.id, 'up')}
-                >
-                  <ArrowUp />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label={`Move ${label} down`}
-                  disabled={busy || index === items.length - 1}
-                  onClick={() => move(item.id, 'down')}
-                >
-                  <ArrowDown />
-                </Button>
-                <Button asChild variant="ghost" size="icon" aria-label={`Edit ${label}`}>
-                  <Link href={layer(editHref(item))}>
-                    <Pencil />
-                  </Link>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-muted-foreground"
-                  aria-label={`Delete ${label}`}
-                  title={!deletable ? deleteDisabledReason : undefined}
-                  disabled={busy || !deletable}
-                  onClick={() => runDelete({ table, id: item.id, noun: deleteNoun, label })}
-                >
-                  <Trash2 />
-                </Button>
+                {/* Stretched edit link: the row surface opens the edit drawer.
+                    It's an overlay (not a wrapper) because some leads are
+                    themselves links to a sub-page (stores → sections) and
+                    anchors can't nest. Positioned siblings rendered after it
+                    (the lead's own links, the overflow menu) paint above and
+                    keep their clicks. */}
+                <Link
+                  href={layer(editHref(item))}
+                  aria-label={`Edit ${label}`}
+                  className="absolute inset-0 outline-none transition-colors hover:bg-muted/40 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-inset"
+                />
+                {/* pointer-events-none lets clicks on plain lead content fall
+                    through to the edit overlay while `[&_a]` restores the
+                    lead's own links on top. The `.truncate` override untangles
+                    Jake's phone bug: consumer leads still pass `truncate`
+                    (public API frozen), but with full row width the right fix
+                    is to wrap to two lines, not ellipsize. */}
+                <div className="pointer-events-none relative flex min-w-0 flex-1 items-center gap-3 [&_a]:pointer-events-auto [&_.truncate]:line-clamp-2 [&_.truncate]:whitespace-normal">
+                  {renderLead(item)}
+                </div>
+                <MoreActionsMenu
+                  className="relative"
+                  size="sm"
+                  triggerLabel={`Actions for ${label}`}
+                  actions={[
+                    // Also in the menu (not only the row overlay): on rows whose
+                    // lead is itself a drill-down link (stores, event types) the
+                    // overlay is mostly covered, so this is edit's reliable path.
+                    {
+                      label: 'Edit',
+                      icon: Pencil,
+                      href: layer(editHref(item)),
+                    },
+                    {
+                      label: 'Move up',
+                      icon: ArrowUp,
+                      disabled: busy || index === 0,
+                      onSelect: () => move(item.id, 'up'),
+                    },
+                    {
+                      label: 'Move down',
+                      icon: ArrowDown,
+                      disabled: busy || index === items.length - 1,
+                      onSelect: () => move(item.id, 'down'),
+                    },
+                    {
+                      label: 'Delete',
+                      icon: Trash2,
+                      destructive: true,
+                      disabled: busy || !deletable,
+                      disabledReason: !deletable ? disabledReason : undefined,
+                      onSelect: () => runDelete({ table, id: item.id, noun: deleteNoun, label }),
+                    },
+                  ]}
+                />
               </li>
             )
           })}

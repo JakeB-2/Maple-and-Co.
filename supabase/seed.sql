@@ -74,48 +74,85 @@ WHERE NOT EXISTS (
 );
 
 -- ----------------------------------------------------------------------------
--- M3: Maple herself + the six anchored event types and their attributes.
--- Types are keyed on system_key (renames in the app win over the seed);
--- attributes are keyed on (type, system_key) or (type, lower(label)).
+-- M3 (reshaped by M6): Maple herself + the anchored event types and their
+-- attributes. Types are keyed on system_key (renames in the app win over the
+-- seed); attributes are keyed on (type, system_key) or (type, lower(label)).
+-- Recency cadence lives in `needs` rows per entity since M6, not type config.
 -- ----------------------------------------------------------------------------
-INSERT INTO public.pets (name)
-SELECT 'Maple'
+INSERT INTO public.entities (name, kind)
+SELECT 'Maple', 'pet'
 WHERE NOT EXISTS (
-    SELECT 1 FROM public.pets p WHERE lower(p.name) = 'maple' AND p.deleted_at IS NULL
+    SELECT 1 FROM public.entities e WHERE lower(e.name) = 'maple' AND e.deleted_at IS NULL
 );
 
-INSERT INTO public.pet_event_types (name, emoji, system_key, config, sort_order)
-SELECT v.name, v.emoji, v.system_key, v.config::jsonb, v.sort_order
+INSERT INTO public.event_types (name, emoji, system_key, entity_kind, config, sort_order)
+SELECT v.name, v.emoji, v.system_key, v.entity_kind, v.config::jsonb, v.sort_order
 FROM (VALUES
-    ('Feed',   '🍖', 'feed',   '{"recency": {"expect_every_hours": 12, "warn_after_hours": 16}, "show_on_today": true}',  10),
-    ('Walk',   '🦮', 'walk',   '{"recency": {"expect_every_hours": 8,  "warn_after_hours": 14}, "show_on_today": true}',  20),
-    ('Potty',  '💩', 'potty',  '{"recency": {"expect_every_hours": 8,  "warn_after_hours": 12}, "show_on_today": true}',  30),
-    ('Meds',   '💊', 'meds',   '{"show_on_today": false}', 40),
-    ('Weight', '⚖️', 'weight', '{"show_on_today": false}', 50),
-    ('Vet',    '🩺', 'vet',    '{"show_on_today": false}', 60)
-) AS v(name, emoji, system_key, config, sort_order)
+    -- pets
+    ('Feed',      '🍖', 'feed',      'pet',   '{}', 10),
+    ('Walk',      '🦮', 'walk',      'pet',   '{}', 20),
+    ('Potty',     '💩', 'potty',     'pet',   '{}', 30),
+    ('Meds',      '💊', 'meds',      'pet',   '{}', 40),
+    ('Weight',    '⚖️', 'weight',    'pet',   '{}', 50),
+    ('Vet',       '🩺', 'vet',       'pet',   '{}', 60),
+    -- plants (M6)
+    ('Water',     '💧', 'water',     'plant', '{}', 10),
+    ('Sunlight',  '☀️', 'sunlight',  'plant', '{}', 20),
+    ('Fertilize', '🌱', 'fertilize', 'plant', '{}', 30)
+) AS v(name, emoji, system_key, entity_kind, config, sort_order)
 WHERE NOT EXISTS (
-    SELECT 1 FROM public.pet_event_types t WHERE t.system_key = v.system_key
+    SELECT 1 FROM public.event_types t WHERE t.system_key = v.system_key
 );
 
-INSERT INTO public.pet_event_attributes
+INSERT INTO public.event_type_attributes
     (event_type_id, label, system_key, value_kind, unit, required, sort_order, config)
 SELECT t.id, v.label, v.attr_key, v.value_kind, v.unit, v.required, v.sort_order, v.config::jsonb
 FROM (VALUES
-    ('feed',   'Meal',      NULL,        'single_choice', NULL, false, 10,
+    ('feed',      'Meal',      NULL,        'single_choice', NULL,  false, 10,
      '{"options": [{"id": "breakfast", "label": "Breakfast", "emoji": "🌅"}, {"id": "dinner", "label": "Dinner", "emoji": "🌆"}, {"id": "snack", "label": "Snack", "emoji": "🦴"}]}'),
-    ('walk',   'Length',    NULL,        'single_choice', NULL, false, 10,
+    ('walk',      'Length',    NULL,        'single_choice', NULL,  false, 10,
      '{"options": [{"id": "short", "label": "Short", "emoji": "🐾"}, {"id": "normal", "label": "Normal", "emoji": "🚶"}, {"id": "long", "label": "Long", "emoji": "🥾"}]}'),
-    ('potty',  'What',      NULL,        'single_choice', NULL, false, 10,
+    ('potty',     'What',      NULL,        'single_choice', NULL,  false, 10,
      '{"options": [{"id": "pee", "label": "Pee", "emoji": "💛"}, {"id": "poop", "label": "Poop", "emoji": "💩"}, {"id": "both", "label": "Both", "emoji": "✨"}]}'),
-    ('meds',   'Which med', NULL,        'text',          NULL, false, 10, '{}'),
-    ('weight', 'Weight',    'weight_kg', 'number',        'kg', true,  10, '{}'),
-    ('vet',    'Notes',     NULL,        'long_text',     NULL, false, 10, '{}')
+    ('meds',      'Which med', NULL,        'text',          NULL,  false, 10, '{}'),
+    ('weight',    'Weight',    'weight_kg', 'number',        'kg',  true,  10, '{}'),
+    ('vet',       'Notes',     NULL,        'long_text',     NULL,  false, 10, '{}'),
+    -- plants (M6): the "task types carry structured fields" examples, as EAV
+    ('water',     'Amount',    NULL,        'single_choice', NULL,  false, 10,
+     '{"options": [{"id": "sip", "label": "Sip", "emoji": "💧"}, {"id": "normal", "label": "Normal", "emoji": "🚿"}, {"id": "soak", "label": "Soak", "emoji": "🌊"}]}'),
+    ('sunlight',  'Duration',  NULL,        'number',        'min', false, 10, '{}'),
+    ('fertilize', 'Notes',     NULL,        'text',          NULL,  false, 10, '{}')
 ) AS v(type_key, label, attr_key, value_kind, unit, required, sort_order, config)
-JOIN public.pet_event_types t ON t.system_key = v.type_key
+JOIN public.event_types t ON t.system_key = v.type_key
 WHERE NOT EXISTS (
-    SELECT 1 FROM public.pet_event_attributes a
+    SELECT 1 FROM public.event_type_attributes a
     WHERE a.event_type_id = t.id
       AND a.deleted_at IS NULL
       AND (a.system_key = v.attr_key OR lower(a.label) = lower(v.label))
 );
+
+-- ----------------------------------------------------------------------------
+-- M6: Maple's needs (per-entity cadence — the old type-config recency block).
+-- Keyed on (entity, type); in-app edits win on re-runs. Meds/Weight/Vet get no
+-- need row: Meds' schedule lives on its linked task (D-026), the others are
+-- plain log types.
+-- ----------------------------------------------------------------------------
+INSERT INTO public.needs
+    (entity_id, event_type_id, expect_every_hours, warn_after_hours, show_on_today, sort_order)
+SELECT e.id, t.id, v.expect_hours, v.warn_hours, v.show_on_today, v.sort_order
+FROM (VALUES
+    ('feed',  12, 16, true, 10),
+    ('walk',   8, 14, true, 20),
+    ('potty',  8, 12, true, 30)
+) AS v(type_key, expect_hours, warn_hours, show_on_today, sort_order)
+JOIN public.event_types t ON t.system_key = v.type_key
+JOIN public.entities e ON lower(e.name) = 'maple' AND e.deleted_at IS NULL
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.needs n
+    WHERE n.entity_id = e.id AND n.event_type_id = t.id AND n.deleted_at IS NULL
+);
+
+-- M6: the household settings singleton (edit in More Actions; seed never wins).
+INSERT INTO public.household_settings (id, app_title)
+VALUES (true, 'Maple & Co')
+ON CONFLICT (id) DO NOTHING;

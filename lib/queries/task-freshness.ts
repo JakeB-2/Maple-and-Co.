@@ -1,8 +1,9 @@
-// Pure freshness projection for the tasks board and the Maple next-dose
-// countdown (D-017: staleness fades, never shames — no red/overdue stage). No
-// Supabase: every projection runs through the recurrence engine's freshness().
-// tasks.ts fetches the live rows and the latest completion per task; this layer
-// turns them into dated, staged board rows.
+// Pure freshness projection for the tasks board and the per-need countdown
+// (D-026's meds pattern, generalized to any need by D-032; D-017: staleness
+// fades, never shames — no red/overdue stage). No Supabase: every projection
+// runs through the recurrence engine's freshness(). tasks.ts fetches the live
+// rows and the latest completion per task; this layer turns them into dated,
+// staged board rows.
 
 import type { TaskRow } from './tasks'
 import type { LatestCompletion } from './tasks'
@@ -47,7 +48,7 @@ export function buildTaskBoard(
   })
 }
 
-export type MedsCountdown = {
+export type NeedCountdown = {
   taskId: string
   lastDone: string | null
   dueOn: string
@@ -55,19 +56,19 @@ export type MedsCountdown = {
 } | null
 
 /**
- * D-026: the Maple next-dose countdown = freshness projection of the LIVE task
- * whose log_pet_event_type_id === medsTypeId (first match). null when medsTypeId
- * is null or no task links to it.
+ * D-026 (per-need since D-032): a need's countdown = freshness projection of
+ * the LIVE task whose need_id === needId (first match). null when needId is
+ * null or no task links to the need.
  */
-export function computeMedsCountdown(
+export function computeNeedCountdown(
   tasks: TaskRow[],
   latestByTask: Map<string, LatestCompletion>,
-  medsTypeId: string | null,
+  needId: string | null,
   today: string
-): MedsCountdown {
-  if (medsTypeId === null) return null
+): NeedCountdown {
+  if (needId === null) return null
 
-  const task = tasks.find((t) => t.log_pet_event_type_id === medsTypeId)
+  const task = tasks.find((t) => t.need_id === needId)
   if (task === undefined) return null
 
   const lastDone = latestByTask.get(task.id)?.completedOn ?? null

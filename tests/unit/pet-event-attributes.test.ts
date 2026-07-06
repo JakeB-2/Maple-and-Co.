@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { mergeAttributeOptions } from '@/lib/queries/pet-event-types'
-import type { ChoiceOption } from '@/lib/queries/pet-event-types'
+import { mergeAttributeOptions } from '@/lib/queries/event-types'
+import type { ChoiceOption } from '@/lib/queries/event-types'
 
 // D-013: choice options are append-only. Logged choice_ids point at option ids,
 // so a merge on edit must NEVER drop a kept id — it archives ids the user

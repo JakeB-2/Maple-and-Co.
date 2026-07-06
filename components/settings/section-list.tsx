@@ -9,7 +9,7 @@ export function SectionList({ storeId, sections }: { storeId: string; sections: 
     <SortableSettingsList
       items={sections}
       table="store_sections"
-      editHref={(section) => `/settings/stores/${storeId}?edit=${section.id}`}
+      editHref={(section) => `/groceries/stores/${storeId}?edit=${section.id}`}
       rowLabel={(section) => section.name}
       deleteNoun="Section"
       newLabel="New section"

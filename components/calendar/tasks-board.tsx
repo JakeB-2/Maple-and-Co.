@@ -94,6 +94,12 @@ export function TasksBoard({ board, today }: { board: TaskBoardRow[]; today: str
               const { task } = row
               const accent = freshnessColor(row.ratio)
               const busy = pendingId === task.id
+              // One truncated secondary line: the need/label linkage (D-032)
+              // leads, the note trails — same row shape either way.
+              const linkage = task.need
+                ? `${task.need.entity.name} · ${task.need.event_type.name}`
+                : task.entity_label
+              const secondary = [linkage, task.note].filter(Boolean).join(' · ')
               // Filled check = a completed one-off, a recurring task done today,
               // or the optimistic beat while its completion is in flight.
               const checked = row.done || row.completedToday || busy
@@ -134,9 +140,9 @@ export function TasksBoard({ board, today }: { board: TaskBoardRow[]; today: str
                       >
                         {task.title}
                       </span>
-                      {task.note && (
+                      {secondary && (
                         <span className="block truncate text-xs text-muted-foreground">
-                          {task.note}
+                          {secondary}
                         </span>
                       )}
                     </span>

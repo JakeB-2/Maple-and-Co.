@@ -9,7 +9,7 @@ export function CategoryList({ categories }: { categories: CategoryListRow[] }) 
     <SortableSettingsList
       items={categories}
       table="spend_categories"
-      editHref={(category) => `/settings/categories?edit=${category.id}`}
+      editHref={(category) => `/finance/categories?edit=${category.id}`}
       rowLabel={(category) => category.name}
       deleteNoun="Category"
       newLabel="New category"

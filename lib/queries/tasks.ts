@@ -6,15 +6,26 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@/lib/database.types'
 import type { RecurUnit, RecurSemantics } from '@/lib/recurrence/types'
+import type { EntityKind } from '@/lib/queries/entities'
 import { HOUSEHOLD_TZ } from '@/lib/config'
 import { todayInTimeZone } from '@/lib/format-date'
 
 export const TASK_SELECT = `
   id, title, note, emoji, anchor_on,
   recur_unit, recur_interval, recur_weekdays, recur_month_day, recur_semantics, recur_until,
-  pet_id, log_pet_event_type_id,
-  created_at, created_by_user_id
+  need_id, entity_label,
+  created_at,
+  need:needs(id, entity:entities(id,name,kind), event_type:event_types(id,name,emoji))
 ` as const
+
+// The linked need, embedded via tasks_need_id_fkey. Carries just enough to
+// render the board chip and route to the entity — the freshness math itself
+// stays derived from entity_events (D-032).
+export type TaskNeedRef = {
+  id: string
+  entity: { id: string; name: string; kind: EntityKind }
+  event_type: { id: string; name: string; emoji: string }
+}
 
 export type TaskRow = {
   id: string
@@ -30,10 +41,13 @@ export type TaskRow = {
   recur_month_day: number | null
   recur_semantics: RecurSemantics | null
   recur_until: string | null
-  pet_id: string | null
-  log_pet_event_type_id: string | null
+  // Mutually exclusive (DB CHECK): a task links a need (D-032) OR carries a
+  // free-text label — the board chip has exactly one source.
+  need_id: string | null
+  entity_label: string | null
   created_at: string
-  created_by_user_id: string | null
+  // PostgREST embed of the linked need; null for label-only/unlinked tasks.
+  need: TaskNeedRef | null
 }
 
 // The latest LIVE completion for each task, already reduced to household-TZ date.
@@ -49,6 +63,9 @@ export async function fetchTasks(supabase: SupabaseClient<Database>): Promise<Ta
     .from('tasks')
     .select(TASK_SELECT)
     .is('deleted_at', null)
+    // A soft-deleted need nulls the embed so the UI stops advertising a linkage
+    // fn_complete_task deliberately no longer honors (it joins live needs only).
+    .is('need.deleted_at', null)
     .order('anchor_on')
 
   if (error) throw error
@@ -64,6 +81,7 @@ export async function fetchTask(
     .select(TASK_SELECT)
     .eq('id', id)
     .is('deleted_at', null)
+    .is('need.deleted_at', null)
     .maybeSingle()
 
   if (error) throw error

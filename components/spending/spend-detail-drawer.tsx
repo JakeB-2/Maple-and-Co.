@@ -47,7 +47,7 @@ export function SpendDetailDrawer({
     })
     if (!deleted) return
     // The row is gone; drop ?selected= so the empty drawer doesn't linger.
-    replaceAndRefresh(layer('/spending'))
+    replaceAndRefresh(layer('/finance'))
   }
 
   return (
@@ -61,7 +61,7 @@ export function SpendDetailDrawer({
         subtitle: `${spend.spent_by.display_name} · ${formatDate(spend.spent_on)}`,
         extraActions: (
           <Button asChild variant="ghost" size="icon" aria-label="Edit spend">
-            <Link href={layer(`/spending?selected=${spend.id}&edit=${spend.id}`)}>
+            <Link href={layer(`/finance?selected=${spend.id}&edit=${spend.id}`)}>
               <Pencil />
             </Link>
           </Button>

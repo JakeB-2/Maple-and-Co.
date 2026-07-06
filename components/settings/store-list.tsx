@@ -11,13 +11,13 @@ export function StoreList({ stores }: { stores: StoreListRow[] }) {
     <SortableSettingsList
       items={stores}
       table="stores"
-      editHref={(store) => `/settings/stores?edit=${store.id}`}
+      editHref={(store) => `/groceries/stores?edit=${store.id}`}
       rowLabel={(store) => store.name}
       deleteNoun="Store"
       newLabel="New store"
       emptyText="No stores yet — add the first one."
       renderLead={(store) => (
-        <Link href={`/settings/stores/${store.id}`} className="flex min-w-0 flex-1 items-center gap-3">
+        <Link href={`/groceries/stores/${store.id}`} className="flex min-w-0 flex-1 items-center gap-3">
           <span aria-hidden className="text-base">
             {store.emoji}
           </span>

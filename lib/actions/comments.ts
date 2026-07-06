@@ -9,7 +9,7 @@ import { ok, fail, sanitizeActionError, type ActionResult } from '@/lib/action-r
 import { getCreateAuditFields } from '@/lib/audit'
 import { revalidateTable } from '@/lib/cache/table-revalidation'
 
-const ENTITY_TYPES = ['spend', 'grocery_item', 'pet_event', 'calendar_event', 'task'] as const
+const ENTITY_TYPES = ['spend', 'grocery_item', 'entity_event', 'calendar_event', 'task'] as const
 export type CommentEntityType = (typeof ENTITY_TYPES)[number]
 
 const commentInputSchema = z.object({

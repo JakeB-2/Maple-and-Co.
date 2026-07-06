@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 
 // Mirror of media.ts's MEDIA_FOLDERS whitelist (that runtime list stays the
 // source of truth; a 'use server' file can't cleanly export a shared type).
-type MediaFolder = 'spends' | 'pets'
+type MediaFolder = 'spends' | 'pets' | 'plants' | 'household'
 
 export function PhotoField({
   name,

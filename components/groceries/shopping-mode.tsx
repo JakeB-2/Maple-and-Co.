@@ -15,6 +15,7 @@ import { useOptimisticList } from '@/lib/hooks/use-optimistic-list'
 import type { ProfileChip } from '@/components/screens/entity-social'
 import { Surface } from '@/components/screens/surface'
 import { AvatarChip } from '@/components/shell/avatar-chip'
+import { PageHeader } from '@/components/shell/page-header'
 import { Button } from '@/components/ui/button'
 import { DrawerShell } from '@/components/screens/detail-drawer'
 import { FormDrawerChrome } from '@/components/screens/form-drawer'
@@ -254,20 +255,12 @@ export function ShoppingMode({
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-2 pt-2">
-        <Link
-          href="/groceries"
-          className="inline-flex items-center gap-1 self-start text-sm text-muted-foreground"
-        >
-          <ChevronLeft className="size-4" /> List
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {store.emoji} {store.name}
-          </h1>
-          <p className="text-sm text-muted-foreground">Tap it when it lands in the cart.</p>
-        </div>
-      </header>
+      <PageHeader
+        title={`${store.emoji} ${store.name}`}
+        subtitle="Tap it when it lands in the cart."
+        backHref="/groceries"
+        backLabel="List"
+      />
 
       <div className="flex flex-col gap-4">
         {toBuy.map((group) => (

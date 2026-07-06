@@ -65,6 +65,25 @@ export async function fetchSpend(
   return data as unknown as SpendRow | null
 }
 
+// Feeds the Finance table (D-033): one newest-first slice instead of the old
+// per-month pages. 200 rows ≈ months of household spending; the table's
+// 'Show more' works within this slice, client-side.
+export async function fetchRecentSpends(
+  supabase: SupabaseClient<Database>,
+  limit = 200
+): Promise<SpendRow[]> {
+  const { data, error } = await supabase
+    .from('spends')
+    .select(SPEND_SELECT)
+    .is('deleted_at', null)
+    .order('spent_on', { ascending: false })
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (error) throw error
+  return (data ?? []) as unknown as SpendRow[]
+}
+
 export async function fetchRecentPartnerSpends(
   supabase: SupabaseClient<Database>,
   currentUserId: string,

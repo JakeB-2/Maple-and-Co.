@@ -9,10 +9,11 @@ import {
   fetchTaskCompletions,
 } from '@/lib/queries/tasks'
 import { buildTaskBoard } from '@/lib/queries/task-freshness'
+import { fetchAllNeeds } from '@/lib/queries/needs'
 import { fetchComments, fetchReactions } from '@/lib/queries/comments'
 import { fetchProfiles } from '@/lib/queries/profiles'
 import { ResourceFormDrawers } from '@/components/screens/resource-form-drawers'
-import { SectionTabs } from '@/components/calendar/section-tabs'
+import { PageHeader } from '@/components/shell/page-header'
 import { TasksBoard } from '@/components/calendar/tasks-board'
 import { TaskDetailDrawer } from '@/components/calendar/task-detail-drawer'
 import { TaskFormBody } from '@/components/calendar/task-form-body'
@@ -31,10 +32,13 @@ export default async function TasksPage({
   const selectedId = sanitizeUuidParam(params.selected)
   const editId = sanitizeUuidParam(params.edit)
 
-  const [tasks, latest, profiles, selected] = await Promise.all([
+  // Needs feed the task form's need picker (D-032) — fetched here so both the
+  // new and edit drawer bodies share one round-trip.
+  const [tasks, latest, profiles, needs, selected] = await Promise.all([
     fetchTasks(supabase),
     fetchLatestCompletions(supabase),
     fetchProfiles(supabase),
+    fetchAllNeeds(supabase),
     selectedId ? fetchTask(supabase, selectedId) : null,
   ])
 
@@ -57,12 +61,9 @@ export default async function TasksPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="pt-2">
-        <h1 className="text-2xl font-bold tracking-tight">Tasks</h1>
-        <p className="text-sm text-muted-foreground">The household rhythm — freshest first, nothing nags.</p>
-      </header>
-
-      <SectionTabs />
+      {/* Independent surface (D-030, D-033): no Calendar coupling — this page
+          arrives via More Actions; Today keeps its own digest board. */}
+      <PageHeader title="Tasks" subtitle="The household rhythm — freshest first, nothing nags." />
 
       <TasksBoard board={board} today={today} />
 
@@ -84,8 +85,8 @@ export default async function TasksPage({
         editTitle="Edit task"
         newSize="sm"
         editSize="sm"
-        newBody={<TaskFormBody mode="new" />}
-        editBody={editId ? <TaskFormBody mode="edit" id={editId} /> : null}
+        newBody={<TaskFormBody mode="new" needs={needs} />}
+        editBody={editId ? <TaskFormBody mode="edit" id={editId} needs={needs} /> : null}
       />
     </div>
   )

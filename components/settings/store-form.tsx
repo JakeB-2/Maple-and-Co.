@@ -44,7 +44,7 @@ export function StoreForm(props: StoreFormProps) {
         mode="new"
         schema={storeInputSchema}
         label="Store"
-        listHref="/settings/stores"
+        listHref="/groceries/stores"
         redirectMode="list"
         defaultValues={props.defaultValues}
         transform={transform}
@@ -61,7 +61,7 @@ export function StoreForm(props: StoreFormProps) {
       id={props.id}
       schema={storeInputSchema}
       label="Store"
-      listHref="/settings/stores"
+      listHref="/groceries/stores"
       redirectMode="list"
       defaultValues={props.defaultValues}
       transform={transform}

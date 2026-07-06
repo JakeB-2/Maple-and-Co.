@@ -1,7 +1,8 @@
 'use client'
 
-// Task detail drawer — repeat rule, anchor, note, the optional Maple link, a
-// completion history list, and the shared reactions/comments (entity 'task').
+// Task detail drawer — repeat rule, anchor, note, the optional need link or
+// free 'About' label (mutually exclusive, D-032), a completion history list,
+// and the shared reactions/comments (entity 'task').
 // Delete uses the generic soft-delete + undo toast, then drops ?selected= so the
 // empty drawer doesn't linger over a deleted task.
 
@@ -103,7 +104,14 @@ export function TaskDetailDrawer({
               <span className="whitespace-pre-wrap break-words">{task.note}</span>
             </Field>
           )}
-          {task.log_pet_event_type_id && <Field label="Maple">Logs to Maple</Field>}
+          {/* Exactly one of these renders (DB CHECK): a linked need fulfills the
+              entity's cadence on completion; a label is just context. */}
+          {task.need && (
+            <Field label="Fulfills">
+              {task.need.entity.name} · {task.need.event_type.emoji} {task.need.event_type.name}
+            </Field>
+          )}
+          {task.entity_label && <Field label="About">{task.entity_label}</Field>}
         </div>
 
         {completions.length > 0 && (

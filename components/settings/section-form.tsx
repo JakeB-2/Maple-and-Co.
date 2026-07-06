@@ -27,7 +27,7 @@ type SectionFormProps = { defaultValues: SectionFormDefaults } & (
 )
 
 export function SectionForm(props: SectionFormProps) {
-  const listHref = `/settings/stores/${props.defaultValues.store_id}`
+  const listHref = `/groceries/stores/${props.defaultValues.store_id}`
 
   const fields = (
     <FormSection>

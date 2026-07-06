@@ -193,3 +193,37 @@ on undo (mirrors D-021's uncheck-retracts-price symmetry). This is why task comp
 the generic soft-delete whitelist — undo is bespoke. **D-026's meds countdown now lands here**: the
 Maple profile projects the next dose off the `after_done` task whose `log_pet_event_type_id` is the
 Meds type — one source of truth, no seeded recency cadence.
+
+## D-032 · Entities + Needs: one table, derived fulfillment, hours cadence
+M6 generalizes the pets-only log to plants (and whatever's next). **One `entities` table**
+(kind 'pet'|'plant') instead of a plants clone: the kinds are column-for-column identical, and
+one table keeps real FKs on everything downstream (the comments-style polymorphic text pair is
+for genuinely heterogeneous targets, which this isn't). The EAV renames follow (`event_types`
++ entity_kind, `event_type_attributes`, `entity_events`, `entity_event_values`). A **Need** is
+a per-entity-INSTANCE row (entity_id, event_type_id, cadence) — not per-shared-type, because
+Maple's walk cadence is not a future second dog's. Its **last-fulfilled is always derived**
+from the latest live entity_event of that (entity, type): a quick-log and a task completion
+write the same table, so the two can never disagree (the root-cause fix; nothing is stored on
+the need). Cadence stays **hours-based** (`expect_every_hours`/`warn_after_hours`, nullable =
+track-last-done-only — the Meds pattern, D-026): pet cadences are sub-day, the recencyState
+math was already proven, and the date-only recurrence engine keeps owning tasks/calendar.
+Tasks link `need_id` XOR a free-text `entity_label` ("Clean Fridge" needs neither); completing
+a need-linked task auto-logs that entity's event via fn_complete_task (D-031 generalized,
+symmetric on undo). "Task types with structured per-type fields" needed no new tables — the
+event-type EAV (D-013) already is that. `pet_event_types.config.recency`/`show_on_today` were
+migrated into needs rows and retired from config.
+
+## D-033 · IA rework: nav is code config; Settings dissolves into the modules
+The bottom bar (Calendar, Pets, Today center, Plants, More) and the More Actions menu
+(Finance, Groceries, Tasks, Household) are ONE config array (`lib/nav/nav-config.ts`) with a
+`placement` field — moving an entry is a one-line flip, deliberately not a DB table or in-app
+editor (nav shape is a dev-time decision; Needs are household data, hence DB). The dedicated
+Settings page is gone: module settings live behind each module header's ellipsis menu
+(`PageHeader` + `HeaderMenu`, one shared header replacing two drifted inline <h1> patterns),
+relocated under their owning routes (/finance/categories, /groceries/stores, /pets/types,
+/plants/types). The only global settings — editable app title + household photo — live at
+/household behind More Actions (`household_settings` singleton). The capture FAB moved
+bottom-center (primary thumb zone); it is capture, not nav, so Finance/Groceries stay on its
+tiles despite leaving the bar. The PWA manifest/installed-app name stays the static APP_NAME
+while the browser-tab title honors the editable one — an installed app renaming itself under
+your icon is surprising, not delightful.

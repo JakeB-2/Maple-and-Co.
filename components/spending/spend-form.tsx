@@ -87,7 +87,7 @@ export function SpendForm(props: SpendFormProps) {
         schema={spendFormSchema}
         label="Spend"
         createLabel="Log spend"
-        listHref="/spending"
+        listHref="/finance"
         defaultValues={props.defaultValues}
         transform={toSpendInput}
         createAction={(values) => createSpend(values)}
@@ -103,7 +103,7 @@ export function SpendForm(props: SpendFormProps) {
       id={props.id}
       schema={spendFormSchema}
       label="Spend"
-      listHref="/spending"
+      listHref="/finance"
       defaultValues={props.defaultValues}
       transform={toSpendInput}
       updateAction={(id, values) => updateSpend(id, values)}

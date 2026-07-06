@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildTaskBoard, computeMedsCountdown } from '@/lib/queries/task-freshness'
+import { buildTaskBoard, computeNeedCountdown } from '@/lib/queries/task-freshness'
 import type { LatestCompletion, TaskRow } from '@/lib/queries/tasks'
 
 // The pure functions never touch Supabase, so tests just build plain rows. A
@@ -17,10 +17,10 @@ function taskRow(overrides: Partial<TaskRow> = {}): TaskRow {
     recur_month_day: null,
     recur_semantics: null,
     recur_until: null,
-    pet_id: null,
-    log_pet_event_type_id: null,
+    need_id: null,
+    entity_label: null,
     created_at: '2026-07-01T12:00:00Z',
-    created_by_user_id: 'user-1',
+    need: null,
     ...overrides,
   }
 }
@@ -199,48 +199,48 @@ describe('buildTaskBoard — shape', () => {
   })
 })
 
-describe('computeMedsCountdown (D-026)', () => {
-  const MEDS = crypto.randomUUID()
+describe('computeNeedCountdown (D-026, per-need since D-032)', () => {
+  const NEED = crypto.randomUUID()
 
-  function medsTask(overrides: Partial<TaskRow> = {}): TaskRow {
-    return afterDoneDaily(4, { log_pet_event_type_id: MEDS, ...overrides })
+  function linkedTask(overrides: Partial<TaskRow> = {}): TaskRow {
+    return afterDoneDaily(4, { need_id: NEED, ...overrides })
   }
 
   it('finds the linked task and projects dueOn off the anchor with no completion', () => {
-    const task = medsTask()
+    const task = linkedTask()
     const other = taskRow({ anchor_on: '2026-07-02' })
-    const got = computeMedsCountdown([other, task], new Map(), MEDS, '2026-07-01')
+    const got = computeNeedCountdown([other, task], new Map(), NEED, '2026-07-01')
     expect(got).toEqual({ taskId: task.id, lastDone: null, dueOn: '2026-07-05', stage: 'fresh' })
   })
 
   it('projects the countdown off the latest completion', () => {
-    const task = medsTask()
-    const got = computeMedsCountdown(
+    const task = linkedTask()
+    const got = computeNeedCountdown(
       [task],
       latest(completion(task.id, '2026-07-03')),
-      MEDS,
+      NEED,
       '2026-07-07'
     )
     expect(got).toEqual({ taskId: task.id, lastDone: '2026-07-03', dueOn: '2026-07-07', stage: 'due' })
   })
 
-  it('returns the FIRST matching task when several link the same type', () => {
-    const first = medsTask()
-    const second = medsTask()
-    const got = computeMedsCountdown([first, second], new Map(), MEDS, '2026-07-01')
+  it('returns the FIRST matching task when several link the same need', () => {
+    const first = linkedTask()
+    const second = linkedTask()
+    const got = computeNeedCountdown([first, second], new Map(), NEED, '2026-07-01')
     expect(got?.taskId).toBe(first.id)
   })
 
-  it('returns null when no task links the meds type', () => {
-    const unrelated = taskRow({ log_pet_event_type_id: crypto.randomUUID() })
-    expect(computeMedsCountdown([unrelated], new Map(), MEDS, '2026-07-01')).toBeNull()
+  it('returns null when no task links the need', () => {
+    const unrelated = taskRow({ need_id: crypto.randomUUID() })
+    expect(computeNeedCountdown([unrelated], new Map(), NEED, '2026-07-01')).toBeNull()
   })
 
-  it('returns null when medsTypeId is null', () => {
-    expect(computeMedsCountdown([medsTask()], new Map(), null, '2026-07-01')).toBeNull()
+  it('returns null when needId is null', () => {
+    expect(computeNeedCountdown([linkedTask()], new Map(), null, '2026-07-01')).toBeNull()
   })
 
   it('returns null for an empty task list', () => {
-    expect(computeMedsCountdown([], new Map(), MEDS, '2026-07-01')).toBeNull()
+    expect(computeNeedCountdown([], new Map(), NEED, '2026-07-01')).toBeNull()
   })
 })

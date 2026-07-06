@@ -1,9 +1,11 @@
 'use client'
 
 import { z } from 'zod'
-import { VALUE_KINDS } from '@/lib/schemas/pet-event-type'
-import type { ChoiceOption } from '@/lib/queries/pet-event-types'
-import { createPetEventAttribute, updatePetEventAttribute } from '@/lib/actions/pet-event-attributes'
+import { VALUE_KINDS } from '@/lib/schemas/event-type'
+import type { ChoiceOption } from '@/lib/queries/event-types'
+import type { EntityKind } from '@/lib/queries/entities'
+import { createEventTypeAttribute, updateEventTypeAttribute } from '@/lib/actions/event-type-attributes'
+import { KIND_COPY } from '@/components/entities/entity-kind'
 import { ResourceCrudForm } from '@/components/screens/resource-crud-form'
 import { FormSection, useFormContext } from '@/components/screens/form-shell'
 import { CheckboxField, TextField, TextareaField } from '@/components/screens/form-fields-text'
@@ -122,13 +124,13 @@ function RequiredField() {
   return <CheckboxField name="required" label="Required" />
 }
 
-type AttributeFormProps = { defaultValues: AttributeFormDefaults } & (
+type AttributeFormProps = { kind: EntityKind; defaultValues: AttributeFormDefaults } & (
   | { mode: 'new' }
   | { mode: 'edit'; id: string; hasLogged: boolean }
 )
 
 export function AttributeForm(props: AttributeFormProps) {
-  const listHref = `/settings/pet-events/${props.defaultValues.event_type_id}`
+  const listHref = `${KIND_COPY[props.kind].base}/types/${props.defaultValues.event_type_id}`
   // Kind is only immutable once a value has been logged against it (matches the
   // server guard); an unlogged attribute can still be re-typed.
   const kindLocked = props.mode === 'edit' && props.hasLogged
@@ -160,7 +162,7 @@ export function AttributeForm(props: AttributeFormProps) {
         redirectMode="list"
         defaultValues={props.defaultValues}
         transform={toAttributeInput}
-        createAction={(values) => createPetEventAttribute(values)}
+        createAction={(values) => createEventTypeAttribute(values)}
       >
         {fields}
       </ResourceCrudForm>
@@ -177,7 +179,7 @@ export function AttributeForm(props: AttributeFormProps) {
       redirectMode="list"
       defaultValues={props.defaultValues}
       transform={toAttributeInput}
-      updateAction={(id, values) => updatePetEventAttribute(id, values)}
+      updateAction={(id, values) => updateEventTypeAttribute(id, values)}
     >
       {fields}
     </ResourceCrudForm>

@@ -6,6 +6,8 @@ import { fetchStores } from '@/lib/queries/stores'
 import { fetchPriceHistory } from '@/lib/queries/price-history'
 import { fetchComments, fetchReactions } from '@/lib/queries/comments'
 import { fetchProfiles } from '@/lib/queries/profiles'
+import { PageHeader } from '@/components/shell/page-header'
+import { HeaderMenu } from '@/components/shell/header-menu'
 import { ResourceFormDrawers } from '@/components/screens/resource-form-drawers'
 import { GroceryNeedList } from '@/components/groceries/grocery-need-list'
 import { ItemDetailDrawer } from '@/components/groceries/item-detail-drawer'
@@ -46,12 +48,14 @@ export default async function GroceriesPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="pt-2">
-        <h1 className="text-2xl font-bold tracking-tight">Groceries</h1>
-        <p className="text-sm text-muted-foreground">
-          The shared list — build it at home, shop it together.
-        </p>
-      </header>
+      <PageHeader
+        title="Groceries"
+        subtitle="The shared list — build it at home, shop it together."
+        actions={
+          // Array style (D-033) so future module options just append here.
+          <HeaderMenu items={[{ label: 'Stores & sections', href: '/groceries/stores' }]} />
+        }
+      />
 
       <GroceryNeedList
         entries={entries}

@@ -9,27 +9,31 @@
 import { revalidatePath } from 'next/cache'
 
 const TABLE_ROUTES: Record<string, string[]> = {
-  profiles: ['/', '/settings'],
-  comments: ['/', '/spending', '/groceries', '/maple', '/calendar', '/tasks'], // comments render inside entity detail drawers
-  reactions: ['/', '/spending', '/groceries', '/maple', '/calendar', '/tasks'],
-  spends: ['/', '/spending'],
-  spend_categories: ['/spending', '/settings/categories'],
-  stores: ['/groceries', '/settings/stores', '/groceries/shop/[storeId]'],
-  store_sections: ['/groceries', '/settings/stores', '/groceries/shop/[storeId]'],
+  profiles: ['/'],
+  // comments/reactions render inside entity detail drawers across modules
+  comments: ['/', '/finance', '/groceries', '/pets/[entityId]', '/plants/[entityId]', '/calendar', '/tasks'],
+  reactions: ['/', '/finance', '/groceries', '/pets/[entityId]', '/plants/[entityId]', '/calendar', '/tasks'],
+  spends: ['/', '/finance'],
+  spend_categories: ['/finance', '/finance/categories'],
+  stores: ['/groceries', '/groceries/stores', '/groceries/stores/[storeId]', '/groceries/shop/[storeId]'],
+  store_sections: ['/groceries', '/groceries/stores', '/groceries/stores/[storeId]', '/groceries/shop/[storeId]'],
   grocery_items: ['/', '/groceries', '/groceries/shop/[storeId]'],
   grocery_list_entries: ['/', '/groceries', '/groceries/shop/[storeId]'],
   grocery_item_placements: ['/groceries', '/groceries/shop/[storeId]'],
   grocery_item_prices: ['/groceries', '/groceries/shop/[storeId]'],
-  pets: ['/', '/maple'],
-  pet_events: ['/', '/maple'],
-  pet_event_types: ['/', '/maple', '/settings/pet-events', '/settings/pet-events/[typeId]'],
-  pet_event_attributes: ['/', '/maple', '/settings/pet-events/[typeId]'],
-  pet_event_values: ['/', '/maple'],
+  entities: ['/', '/pets', '/plants', '/pets/[entityId]', '/plants/[entityId]'],
+  entity_events: ['/', '/pets', '/plants', '/pets/[entityId]', '/plants/[entityId]'],
+  entity_event_values: ['/', '/pets', '/plants', '/pets/[entityId]', '/plants/[entityId]'],
+  // Type edits ripple into /tasks too — the task form's need picker shows type names.
+  event_types: ['/', '/pets', '/plants', '/pets/[entityId]', '/plants/[entityId]', '/pets/types', '/plants/types', '/pets/types/[typeId]', '/plants/types/[typeId]', '/tasks'],
+  event_type_attributes: ['/pets/[entityId]', '/plants/[entityId]', '/pets/types/[typeId]', '/plants/types/[typeId]'],
+  needs: ['/', '/pets/[entityId]', '/plants/[entityId]', '/tasks'],
   calendar_events: ['/', '/calendar'],
   calendar_event_exclusions: ['/', '/calendar'],
-  // Completing a task with a pet linkage also touches pet_events + Maple.
-  tasks: ['/', '/calendar', '/tasks', '/maple'],
-  task_completions: ['/', '/calendar', '/tasks', '/maple'],
+  // Completing a need-linked task also logs an entity event → entity profiles.
+  tasks: ['/', '/tasks', '/pets/[entityId]', '/plants/[entityId]'],
+  task_completions: ['/', '/tasks', '/pets/[entityId]', '/plants/[entityId]'],
+  household_settings: ['/', '/household'],
 }
 
 export function revalidateTable(table: keyof typeof TABLE_ROUTES | (string & {})) {
